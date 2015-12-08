@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -66,12 +68,40 @@ public class APGateway {
 	 * @return the response
 	 */
 	public String readResponse() {
+		BufferedReader reader = null;
+		List<String> lines = new ArrayList<String>();
 		try {
-			new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String line = null;
+
+            while((line = reader.readLine()) != null) {
+                lines.add(line);
+            }
+            
+
+        	System.out.println("@@@ Response is: ");
+        	for (String s : lines) {
+        		System.out.println(" " + s);
+        	}
+
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			if (reader != null) {
+	            try {
+					reader.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+        }
+		if (lines.isEmpty()) {
+			return "";
+		} else {
+			return lines.get(0);	
 		}
-		return "";
+		
 	}
 
 	public IRestClient getRestClient() {
