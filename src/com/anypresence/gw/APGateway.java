@@ -8,6 +8,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * 
@@ -62,6 +64,18 @@ public class APGateway {
 		
 	}
 	
+	public <T extends APObject> T readResponseQuery(T obj) {
+		String response = readResponse();
+		
+		Map<String, String> data = JSONParser.parseMap(response);
+		
+		for (Entry<String, String> entry : data.entrySet()) {
+			obj.set(entry.getKey(), entry.getValue().toString());
+		}
+		
+		return obj;	
+	}
+	
 	/**
 	 * Reads the response.
 	 * 
@@ -111,7 +125,11 @@ public class APGateway {
 	protected void setRestClient(IRestClient restClient) {
 		this.restClient = restClient;
 	}
-
+	
+	/**
+	 * Builder for APGateway
+	 *
+	 */
 	public static class Builder {
 		String url;
 		HTTPMethod method;

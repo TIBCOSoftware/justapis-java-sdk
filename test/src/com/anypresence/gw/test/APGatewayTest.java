@@ -88,5 +88,28 @@ public final class APGatewayTest {
 		Assert.assertEquals("testing123", responseBody);
 	}
 	
+	@Test
+	public void test_Query() {
+		APQuery<APObject> query = new APQuery<APObject>();
+		
+		APGateway.Builder builder = new APGateway.Builder();
+		builder.url("http://localhost:1080/api/v1/foo");
+		builder.method(HTTPMethod.GET);
+
+		APGateway gw = builder.build();
+		
+		mockServer.when(
+				request().withMethod("GET").withPath("/api/v1/foo")
+				)
+				.respond(
+					response()
+						.withBody("{'foo':'bar'}")); 
+		
+		APObject obj = new APObject();
+		gw.execute();
+		APObject readResponseQuery = gw.readResponseQuery(obj);
+		
+		Assert.assertEquals("bar", readResponseQuery.get("foo"));
+	}
 
 }
