@@ -22,6 +22,10 @@ public class APGateway {
 	private HttpURLConnection connection;
 	private IRestClient restClient;
 	
+	private IParser jsonParser = new JSONParser();
+	
+	private String body;
+	
 	private APGateway() {
 	}
 	
@@ -42,35 +46,33 @@ public class APGateway {
 	}
 	
 	// Execute the request
-	public void execute() {			
-		if (getRestClient() == null) {
-			URL urlConnection;
-			try {
-				urlConnection = new URL(url);
-						
-				connection = (HttpURLConnection) urlConnection.openConnection();
-				connection.setRequestMethod(method.name());		
-				
-				connection.setReadTimeout(15*1000);
-				connection.connect();
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} else {
-			getRestClient().openConnection();
-		}
+	public void execute() {	
+		getRestClient().openConnection(url, method);
 		
+		switch (method) {
+		case POST:
+			getRestClient().post(getBody());
+		}
+	}
+	
+	public void post() {
+		execute();
+		getRestClient().post(body);
+	}
+	
+	public void get() {
+		execute();
 	}
 	
 	public <T extends APObject> T readResponseQuery(T obj) {
 		String response = readResponse();
 		
-		Map<String, String> data = JSONParser.parseMap(response);
+		Map<String, String> data = jsonParser.parseMap(response);
 		
-		for (Entry<String, String> entry : data.entrySet()) {
-			obj.set(entry.getKey(), entry.getValue().toString());
+		if (data != null) {
+			for (Entry<String, String> entry : data.entrySet()) {
+				obj.set(entry.getKey(), entry.getValue().toString());
+			}
 		}
 		
 		return obj;	
@@ -82,43 +84,14 @@ public class APGateway {
 	 * @return the response
 	 */
 	public String readResponse() {
-		BufferedReader reader = null;
-		List<String> lines = new ArrayList<String>();
-		try {
-			reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String line = null;
-
-            while((line = reader.readLine()) != null) {
-                lines.add(line);
-            }
-            
-
-        	System.out.println("@@@ Response is: ");
-        	for (String s : lines) {
-        		System.out.println(" " + s);
-        	}
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			if (reader != null) {
-	            try {
-					reader.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-        }
-		if (lines.isEmpty()) {
-			return "";
-		} else {
-			return lines.get(0);	
-		}
-		
+		return getRestClient().readResponse();		
 	}
 
 	public IRestClient getRestClient() {
+		if (restClient == null) {
+			restClient = new DefaultRestClient();
+		}
+		
 		return restClient;
 	}
 
@@ -126,6 +99,16 @@ public class APGateway {
 		this.restClient = restClient;
 	}
 	
+
+	public String getBody() {
+		return body;
+	}
+
+	public void setBody(String body) {
+		this.body = body;
+	}
+
+
 	/**
 	 * Builder for APGateway
 	 *

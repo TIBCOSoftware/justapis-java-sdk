@@ -111,5 +111,34 @@ public final class APGatewayTest {
 		
 		Assert.assertEquals("bar", readResponseQuery.get("foo"));
 	}
+	
+	@Test
+	public void test_Post() {
+		APGateway.Builder builder = new APGateway.Builder();
+		builder.url("http://localhost:1080/api/v1/foo");
+		builder.method(HTTPMethod.POST);
+
+		APGateway gw = builder.build();
+		
+		mockServer.when(
+					request()
+					.withMethod("POST")
+					.withPath("/api/v1/foo")
+					.withBody("{'foo':'bar'}")
+				)
+				.respond(
+					response()
+					.withBody("{'id':'123'}")
+				); 
+		
+		APObject obj = new APObject();
+		gw.setBody("{'foo':'bar'}");
+
+		gw.post();
+		
+		APObject readResponseQuery = gw.readResponseQuery(obj);
+		
+		Assert.assertEquals("123", readResponseQuery.get("id"));
+	}
 
 }

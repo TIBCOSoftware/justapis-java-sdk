@@ -7,7 +7,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 
-public class JSONParser {
+public class JSONParser implements IParser {
 	public static GsonBuilder defaultGsonSerializer;
 	public static GsonBuilder defaultGsonDeserializer;
 	
@@ -21,7 +21,7 @@ public class JSONParser {
         .serializeNulls();
 	}
 	
-	public static Map<String,String> parseMap(String data) {
+	public Map<String,String> parseMap(String data) {
 		Type type = new TypeToken<Map<String, String>>(){}.getType();
 		
 		return defaultGsonDeserializer.create().fromJson(data, type);

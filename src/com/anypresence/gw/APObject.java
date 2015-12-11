@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
+ * This class represents data that is used with APGateway. When data is serialized, it can be 
+ * deserialized into this object.
  *
  */
 public class APObject {
