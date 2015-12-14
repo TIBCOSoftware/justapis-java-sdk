@@ -5,25 +5,38 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.NotImplementedException;
+
 /**
  * 
  *
  */
 public class APGateway {
+	/**
+	 *  URL to connect to
+	 */
 	private String url;
+	
+	/**
+	 * HTTP method to use
+	 */
 	private HTTPMethod method;
 	
-	private HttpURLConnection connection;
 	private IRestClient restClient;
 	
 	private IParser jsonParser = new JSONParser();
 	
+	/** 
+	 * Payload body for POST requests
+	 */
 	private String body;
 	
 	private APGateway() {
@@ -64,10 +77,10 @@ public class APGateway {
 		execute();
 	}
 	
-	public <T extends APObject> T readResponseQuery(T obj) {
+	public <T extends APObject> T readResponseObject(T obj) {
 		String response = readResponse();
 		
-		Map<String, String> data = jsonParser.parseMap(response);
+		Map<String, String> data = jsonParser.parseData(response);
 		
 		if (data != null) {
 			for (Entry<String, String> entry : data.entrySet()) {
@@ -78,8 +91,12 @@ public class APGateway {
 		return obj;	
 	}
 	
+	public <T extends List<APObject>> T readResponseObject(T obj) {
+		throw new NotImplementedException("Not yet implemented");
+	}
+	
 	/**
-	 * Reads the response.
+	 * Reads the raw response.
 	 * 
 	 * @return the response
 	 */
@@ -106,6 +123,19 @@ public class APGateway {
 
 	public void setBody(String body) {
 		this.body = body;
+	}
+	
+	public void setRelativeUrl(String url) {
+		String updatedUrl = this.url + "/" + url;
+		URI uri;
+		try {
+			uri = new URI(updatedUrl);
+			uri = uri.normalize();
+			
+			this.url = uri.toString();
+		} catch (URISyntaxException e) {			
+			e.printStackTrace();
+		}		
 	}
 
 

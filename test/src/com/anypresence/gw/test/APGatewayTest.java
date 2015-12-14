@@ -107,7 +107,7 @@ public final class APGatewayTest {
 		
 		APObject obj = new APObject();
 		gw.execute();
-		APObject readResponseQuery = gw.readResponseQuery(obj);
+		APObject readResponseQuery = gw.readResponseObject(obj);
 		
 		Assert.assertEquals("bar", readResponseQuery.get("foo"));
 	}
@@ -136,9 +136,21 @@ public final class APGatewayTest {
 
 		gw.post();
 		
-		APObject readResponseQuery = gw.readResponseQuery(obj);
+		APObject readResponseQuery = gw.readResponseObject(obj);
 		
 		Assert.assertEquals("123", readResponseQuery.get("id"));
+	}
+	
+	@Test
+	public void test_UpdateRelativeUrl() {
+		APGateway.Builder builder = new APGateway.Builder();
+		builder.url("http://localhost:1080/api/v1/foo");
+		builder.method(HTTPMethod.POST);
+
+		APGateway gw = builder.build();
+		gw.setRelativeUrl("/bar/two");
+		
+		Assert.assertEquals("http://localhost:1080/api/v1/foo/bar/two", gw.getUrl());
 	}
 
 }

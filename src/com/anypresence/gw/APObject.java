@@ -1,5 +1,6 @@
 package com.anypresence.gw;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,8 +9,9 @@ import java.util.Map;
  * deserialized into this object.
  *
  */
-public class APObject {
-	
+public class APObject implements Serializable{
+    private static final long serialVersionUID = 1L;
+    
 	private Map<String, Object> data = new HashMap<String, Object>();
 	
 	public APObject() {}

@@ -21,7 +21,7 @@ public class JSONParser implements IParser {
         .serializeNulls();
 	}
 	
-	public Map<String,String> parseMap(String data) {
+	public Map<String,String> parseData(String data) {
 		Type type = new TypeToken<Map<String, String>>(){}.getType();
 		
 		return defaultGsonDeserializer.create().fromJson(data, type);
