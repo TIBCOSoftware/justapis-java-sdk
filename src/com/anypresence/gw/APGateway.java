@@ -12,8 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.NotImplementedException;
+
+import com.google.common.util.concurrent.ListenableFuture;
+
+import callbacks.IAPFutureCallback;
 
 /**
  * 
@@ -65,16 +70,35 @@ public class APGateway {
 		execute(url);
 	}
 	
+	public void execute(String url) {
+		execute(url, null);
+	}
+	
 	/**
+	 * @param <T>
 	 * @see APGateway#execute()
 	 * @param url relative url to connect to
 	 */
-	public void execute(String url) {	
+	public <T> void execute(String url, IAPFutureCallback<T> callback) {	
 		getRestClient().openConnection(Utilities.updateUrl(this.url, url), method);
 		
 		switch (method) {
 		case POST:
 			getRestClient().post(getBody());
+		default:
+			break;
+		}
+		
+		// Handle callback
+		if (callback != null) {
+	        ListenableFuture<T> future = AsyncHandler.getService().submit(new Callable<T>() {
+	            @SuppressWarnings("unchecked")
+	            public T call() throws Exception {
+	            	return null;
+	            }
+	        });
+	        
+	        AsyncHandler.handleCallbacks(future, callback);
 		}
 	}
 	
@@ -109,6 +133,10 @@ public class APGateway {
 	 */
 	public void get(String url) {
 		execute(url);
+	}
+	
+	public <T> void get(String url, IAPFutureCallback<T> callback) {
+		execute(url, callback);
 	}
 	
 	public <T extends APObject> T readResponseObject(T obj) {
