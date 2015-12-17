@@ -34,7 +34,6 @@ public class DefaultRestClient implements IRestClient {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		;
 	}
 
 	public void post(String body) {

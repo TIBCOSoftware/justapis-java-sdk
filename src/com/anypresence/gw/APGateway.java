@@ -58,9 +58,19 @@ public class APGateway {
 		this.method = method;
 	}
 	
-	// Execute the request
+	/**
+	 * 	Executes the request
+	 */
 	public void execute() {	
-		getRestClient().openConnection(url, method);
+		execute(url);
+	}
+	
+	/**
+	 * @see APGateway#execute()
+	 * @param url relative url to connect to
+	 */
+	public void execute(String url) {	
+		getRestClient().openConnection(Utilities.updateUrl(this.url, url), method);
 		
 		switch (method) {
 		case POST:
@@ -68,13 +78,37 @@ public class APGateway {
 		}
 	}
 	
+	/**
+	 * @see APGateway#post(String)
+	 */
 	public void post() {
 		execute();
 		getRestClient().post(body);
 	}
 	
+	/**
+	 * Sends post request
+	 * @param url relative url to connect to
+	 */
+	public void post(String url) {
+		execute(url);
+		getRestClient().post(body);
+	}
+	
+	/**
+	 * @see APGateway#get(String)
+	 */
 	public void get() {
 		execute();
+	}
+	
+	/**
+	 * Sends a get request
+	 * 
+	 * @param url relative url to connect to
+	 */
+	public void get(String url) {
+		execute(url);
 	}
 	
 	public <T extends APObject> T readResponseObject(T obj) {
@@ -116,7 +150,6 @@ public class APGateway {
 		this.restClient = restClient;
 	}
 	
-
 	public String getBody() {
 		return body;
 	}
@@ -125,6 +158,11 @@ public class APGateway {
 		this.body = body;
 	}
 	
+	/**
+	 * Sets the relative url
+	 * 
+	 * @param url
+	 */
 	public void setRelativeUrl(String url) {
 		String updatedUrl = this.url + "/" + url;
 		URI uri;

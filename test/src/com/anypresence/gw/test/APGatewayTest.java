@@ -142,6 +142,35 @@ public final class APGatewayTest {
 	}
 	
 	@Test
+	public void test_PostWithUrl() {
+		APGateway.Builder builder = new APGateway.Builder();
+		builder.url("http://localhost:1080/api/v1/foo");
+		builder.method(HTTPMethod.POST);
+
+		APGateway gw = builder.build();
+		
+		mockServer.when(
+					request()
+					.withMethod("POST")
+					.withPath("/api/v1/foo/bar")
+					.withBody("{'foo':'bar'}")
+				)
+				.respond(
+					response()
+					.withBody("{'id':'123'}")
+				); 
+		
+		APObject obj = new APObject();
+		gw.setBody("{'foo':'bar'}");
+
+		gw.post("/bar");
+		
+		APObject readResponseQuery = gw.readResponseObject(obj);
+		
+		Assert.assertEquals("123", readResponseQuery.get("id"));
+	}
+	
+	@Test
 	public void test_UpdateRelativeUrl() {
 		APGateway.Builder builder = new APGateway.Builder();
 		builder.url("http://localhost:1080/api/v1/foo");
