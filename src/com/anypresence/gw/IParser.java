@@ -4,6 +4,6 @@ import java.util.Map;
 
 public interface IParser {
 
-	public Map<String,String> parseData(String data);
-	
+	public Map<String, String> parseData(String data);
+
 }

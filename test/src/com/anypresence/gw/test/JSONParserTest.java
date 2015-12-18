@@ -12,10 +12,10 @@ public class JSONParserTest {
 	@Test
 	public void test_ParseMap() {
 		String data = "{'apple': 'yummy', 'tofu':'ok'}";
-		
-		Map<String,String> val = new JSONParser().parseData(data);
+
+		Map<String, String> val = new JSONParser().parseData(data);
 		Assert.assertTrue(val.get("apple").equals("yummy"));
 		Assert.assertTrue(val.get("tofu").equals("ok"));
 	}
-	
+
 }

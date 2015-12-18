@@ -1,14 +1,7 @@
 package com.anypresence.gw;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,27 +19,27 @@ import com.google.common.util.concurrent.ListenableFuture;
  */
 public class APGateway {
 	/**
-	 *  URL to connect to
+	 * URL to connect to
 	 */
 	private String url;
-	
+
 	/**
 	 * HTTP method to use
 	 */
 	private HTTPMethod method;
-	
+
 	private IRestClient restClient;
-	
+
 	private IParser jsonParser = new JSONParser();
-	
-	/** 
+
+	/**
 	 * Payload body for POST requests
 	 */
 	private String body;
-	
+
 	private APGateway() {
 	}
-	
+
 	public String getUrl() {
 		return url;
 	}
@@ -62,22 +55,23 @@ public class APGateway {
 	public void setMethod(HTTPMethod method) {
 		this.method = method;
 	}
-	
+
 	/**
-	 * 	Executes the request
+	 * Executes the request
 	 */
-	public void execute() {	
+	public void execute() {
 		execute(url);
 	}
-	
+
 	public void execute(String url) {
 		execute(url, null);
 	}
-	
+
 	/**
 	 * @param <T>
 	 * @see APGateway#execute()
-	 * @param url relative url to connect to
+	 * @param url
+	 *            relative url to connect to
 	 */
 	public <T> void execute(final String url, IAPFutureCallback<T> callback) {
 		if (callback == null) {
@@ -88,23 +82,25 @@ public class APGateway {
 			}
 		} else {
 			// Handle callback
-	        ListenableFuture<T> future = AsyncHandler.getService().submit(new Callable<T>() {
-	            @SuppressWarnings("unchecked")
-	            public T call() throws Exception {
-	            	connect(url, method); 
-	            		            
-	            	APObject apObjecct = new APObject();
-	            	return (T) readResponseObject(apObjecct);	           
-	            }
-	        });
-	        
-	        AsyncHandler.handleCallbacks(future, callback);
+			ListenableFuture<T> future = AsyncHandler.getService().submit(
+					new Callable<T>() {
+						@SuppressWarnings("unchecked")
+						public T call() throws Exception {
+							connect(url, method);
+
+							APObject apObjecct = new APObject();
+							return (T) readResponseObject(apObjecct);
+						}
+					});
+
+			AsyncHandler.handleCallbacks(future, callback);
 		}
 	}
-	
+
 	private void connect(String url, HTTPMethod method) throws RequestException {
-		getRestClient().openConnection(Utilities.updateUrl(this.url, url), method);
-		
+		getRestClient().openConnection(Utilities.updateUrl(this.url, url),
+				method);
+
 		switch (method) {
 		case POST:
 			getRestClient().post(getBody());
@@ -112,7 +108,7 @@ public class APGateway {
 			break;
 		}
 	}
-	
+
 	/**
 	 * @see APGateway#post(String)
 	 */
@@ -120,75 +116,78 @@ public class APGateway {
 		execute();
 		getRestClient().post(body);
 	}
-	
+
 	/**
 	 * Sends post request
-	 * @param url relative url to connect to
+	 * 
+	 * @param url
+	 *            relative url to connect to
 	 */
 	public void post(String url) {
 		execute(url);
 		getRestClient().post(body);
 	}
-	
+
 	/**
 	 * @see APGateway#get(String)
 	 */
 	public void get() {
 		execute();
 	}
-	
+
 	/**
 	 * Sends a get request
 	 * 
-	 * @param url relative url to connect to
+	 * @param url
+	 *            relative url to connect to
 	 */
 	public void get(String url) {
 		execute(url);
 	}
-	
+
 	public <T> void get(String url, IAPFutureCallback<T> callback) {
 		execute(url, callback);
 	}
-	
+
 	public <T extends APObject> T readResponseObject(T obj) {
 		String response = readResponse();
-		
+
 		Map<String, String> data = jsonParser.parseData(response);
-		
+
 		if (data != null) {
 			for (Entry<String, String> entry : data.entrySet()) {
 				obj.set(entry.getKey(), entry.getValue().toString());
 			}
 		}
-		
-		return obj;	
+
+		return obj;
 	}
-	
+
 	public <T extends List<APObject>> T readResponseObject(T obj) {
 		throw new NotImplementedException("Not yet implemented");
 	}
-	
+
 	/**
 	 * Reads the raw response.
 	 * 
 	 * @return the response
 	 */
 	public String readResponse() {
-		return getRestClient().readResponse();		
+		return getRestClient().readResponse();
 	}
 
 	public IRestClient getRestClient() {
 		if (restClient == null) {
 			restClient = new DefaultRestClient();
 		}
-		
+
 		return restClient;
 	}
 
 	protected void setRestClient(IRestClient restClient) {
 		this.restClient = restClient;
 	}
-	
+
 	public String getBody() {
 		return body;
 	}
@@ -196,7 +195,7 @@ public class APGateway {
 	public void setBody(String body) {
 		this.body = body;
 	}
-	
+
 	/**
 	 * Sets the relative url
 	 * 
@@ -208,39 +207,39 @@ public class APGateway {
 		try {
 			uri = new URI(updatedUrl);
 			uri = uri.normalize();
-			
-			this.url = uri.toString();
-		} catch (URISyntaxException e) {			
-			e.printStackTrace();
-		}		
-	}
 
+			this.url = uri.toString();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Builder for APGateway
-	 *
+	 * 
 	 */
 	public static class Builder {
 		String url;
 		HTTPMethod method;
-		
-		public Builder() {}
-		
+
+		public Builder() {
+		}
+
 		public Builder url(String url) {
 			this.url = url;
 			return this;
 		}
-		
+
 		public Builder method(HTTPMethod method) {
 			this.method = method;
 			return this;
 		}
-		
+
 		public APGateway build() {
 			APGateway gw = new APGateway();
 			gw.setUrl(url);
 			gw.setMethod(method);
-			
+
 			return gw;
 		}
 	}

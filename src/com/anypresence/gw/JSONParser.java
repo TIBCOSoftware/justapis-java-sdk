@@ -12,26 +12,26 @@ import java.lang.reflect.Type;
 public class JSONParser implements IParser {
 	public static GsonBuilder defaultGsonSerializer;
 	public static GsonBuilder defaultGsonDeserializer;
-	
+
 	static {
 		defaultGsonSerializer = new GsonBuilder()
-        .excludeFieldsWithoutExposeAnnotation()
-        .serializeNulls();
-		
+				.excludeFieldsWithoutExposeAnnotation().serializeNulls();
+
 		defaultGsonDeserializer = new GsonBuilder()
-        .excludeFieldsWithoutExposeAnnotation()
-        .serializeNulls();
+				.excludeFieldsWithoutExposeAnnotation().serializeNulls();
 	}
-	
-	public Map<String,String> parseData(String data) {
-		Type type = new TypeToken<Map<String, String>>(){}.getType();		
-		
+
+	public Map<String, String> parseData(String data) {
+		Type type = new TypeToken<Map<String, String>>() {
+		}.getType();
+
 		return defaultGsonDeserializer.create().fromJson(data, type);
 	}
-	
-	public Map<String,String> parseListData(String data) {
-		Type type = new TypeToken<ArrayList<Object>>(){}.getType();		
-		
+
+	public Map<String, String> parseListData(String data) {
+		Type type = new TypeToken<ArrayList<Object>>() {
+		}.getType();
+
 		return defaultGsonDeserializer.create().fromJson(data, type);
 	}
 
