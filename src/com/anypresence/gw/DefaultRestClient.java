@@ -6,16 +6,19 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.OutputStreamWriter;
+
+import com.anypresence.gw.exceptions.RequestException;
 
 public class DefaultRestClient implements IRestClient {
 
 	private HttpURLConnection connection;
 	private int readTimeout = 15 * 1000;
 
-	public void openConnection(String url, HTTPMethod method) {
+	public void openConnection(String url, HTTPMethod method) throws RequestException {
 		URL urlConnection;
 		try {
 			urlConnection = new URL(url);
@@ -30,12 +33,10 @@ public class DefaultRestClient implements IRestClient {
 			connection.setReadTimeout(readTimeout);
 			connection.connect();
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			throw new RequestException(e);
 		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		
+			throw new RequestException(e);
+		}		
 	}
 
 	public void post(String body) {
@@ -55,6 +56,7 @@ public class DefaultRestClient implements IRestClient {
 	public String readResponse() {
 		BufferedReader reader = null;
 		List<String> lines = new ArrayList<String>();
+		String result = "";
 		try {
 			reader = new BufferedReader(new InputStreamReader(
 					connection.getInputStream()));
@@ -62,6 +64,7 @@ public class DefaultRestClient implements IRestClient {
 
 			while ((line = reader.readLine()) != null) {
 				lines.add(line);
+				result += line;
 			}
 
 			for (String s : lines) {
@@ -79,12 +82,8 @@ public class DefaultRestClient implements IRestClient {
 				}
 			}
 		}
-
-		if (lines.isEmpty()) {
-			return "";
-		} else {
-			return lines.get(0);
-		}
+		
+		return result;
 	}
 
 }

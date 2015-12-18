@@ -16,9 +16,9 @@ import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.NotImplementedException;
 
+import com.anypresence.gw.callbacks.IAPFutureCallback;
+import com.anypresence.gw.exceptions.RequestException;
 import com.google.common.util.concurrent.ListenableFuture;
-
-import callbacks.IAPFutureCallback;
 
 /**
  * 
@@ -79,7 +79,30 @@ public class APGateway {
 	 * @see APGateway#execute()
 	 * @param url relative url to connect to
 	 */
-	public <T> void execute(String url, IAPFutureCallback<T> callback) {	
+	public <T> void execute(final String url, IAPFutureCallback<T> callback) {
+		if (callback == null) {
+			try {
+				connect(url, method);
+			} catch (RequestException e) {
+				e.printStackTrace();
+			}
+		} else {
+			// Handle callback
+	        ListenableFuture<T> future = AsyncHandler.getService().submit(new Callable<T>() {
+	            @SuppressWarnings("unchecked")
+	            public T call() throws Exception {
+	            	connect(url, method); 
+	            		            
+	            	APObject apObjecct = new APObject();
+	            	return (T) readResponseObject(apObjecct);	           
+	            }
+	        });
+	        
+	        AsyncHandler.handleCallbacks(future, callback);
+		}
+	}
+	
+	private void connect(String url, HTTPMethod method) throws RequestException {
 		getRestClient().openConnection(Utilities.updateUrl(this.url, url), method);
 		
 		switch (method) {
@@ -87,18 +110,6 @@ public class APGateway {
 			getRestClient().post(getBody());
 		default:
 			break;
-		}
-		
-		// Handle callback
-		if (callback != null) {
-	        ListenableFuture<T> future = AsyncHandler.getService().submit(new Callable<T>() {
-	            @SuppressWarnings("unchecked")
-	            public T call() throws Exception {
-	            	return null;
-	            }
-	        });
-	        
-	        AsyncHandler.handleCallbacks(future, callback);
 		}
 	}
 	

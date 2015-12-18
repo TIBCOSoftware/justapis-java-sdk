@@ -1,10 +1,12 @@
 package com.anypresence.gw;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+
 import java.lang.reflect.Type;
 
 public class JSONParser implements IParser {
@@ -22,10 +24,15 @@ public class JSONParser implements IParser {
 	}
 	
 	public Map<String,String> parseData(String data) {
-		Type type = new TypeToken<Map<String, String>>(){}.getType();
+		Type type = new TypeToken<Map<String, String>>(){}.getType();		
 		
 		return defaultGsonDeserializer.create().fromJson(data, type);
 	}
-
+	
+	public Map<String,String> parseListData(String data) {
+		Type type = new TypeToken<ArrayList<Object>>(){}.getType();		
+		
+		return defaultGsonDeserializer.create().fromJson(data, type);
+	}
 
 }

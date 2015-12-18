@@ -1,4 +1,4 @@
-package callbacks;
+package com.anypresence.gw.callbacks;
 
 
 import com.google.common.util.concurrent.FutureCallback;

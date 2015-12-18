@@ -1,4 +1,4 @@
-package callbacks;
+package com.anypresence.gw.callbacks;
 
 public abstract class APCallback<T> implements IAPFutureCallback<T> {
     public void onFailure(final Throwable ex) {
