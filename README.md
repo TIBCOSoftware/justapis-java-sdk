@@ -1,13 +1,15 @@
 Android AP Gateway
 ===========
+
 This is an SDK that you will want to use to interface with the AnyPresence's JustAPI technology. 
 
 The design is meant to be modular where you can plug in your own JSON parser or rest client.
+
 ===========
 Quick Examples
 
 Sends a POST synchronously
-```java
+```{java}
         APGateway.Builder builder = new APGateway.Builder();
         builder.url("http://foo.lvh.me:3000/api/v1/foo");
 
