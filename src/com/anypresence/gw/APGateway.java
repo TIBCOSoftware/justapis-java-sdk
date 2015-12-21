@@ -152,7 +152,7 @@ public class APGateway {
 	public <T extends APObject> T readResponseObject(T obj) {
 		String response = readResponse();
 
-		Map<String, String> data = jsonParser.parseData(response);
+		Map<String, String> data = getJsonParser().parseData(response);
 
 		if (data != null) {
 			for (Entry<String, String> entry : data.entrySet()) {
@@ -184,7 +184,7 @@ public class APGateway {
 		return restClient;
 	}
 
-	protected void setRestClient(IRestClient restClient) {
+	public void setRestClient(IRestClient restClient) {
 		this.restClient = restClient;
 	}
 
@@ -212,6 +212,14 @@ public class APGateway {
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public IParser getJsonParser() {
+		return jsonParser;
+	}
+
+	public void setJsonParser(IParser jsonParser) {
+		this.jsonParser = jsonParser;
 	}
 
 	/**

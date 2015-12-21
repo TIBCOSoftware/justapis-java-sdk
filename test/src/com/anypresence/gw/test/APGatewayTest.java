@@ -71,13 +71,13 @@ public final class APGatewayTest {
 		APGateway gw = builder.build();
 
 		mockServer.when(request().withMethod("GET").withPath("/api/v1/foo"))
-				.respond(
-						response()
-								.withStatusCode(302)
-								.withCookie("sessionId", "some_session_id")
-								.withHeader("Location",
-										"https://www.mock-server.com")
-								.withBody("testing123"));
+		.respond(
+				response()
+				.withStatusCode(302)
+				.withCookie("sessionId", "some_session_id")
+				.withHeader("Location",
+						"https://www.mock-server.com")
+						.withBody("testing123"));
 
 		gw.execute();
 
@@ -96,7 +96,7 @@ public final class APGatewayTest {
 		APGateway gw = builder.build();
 
 		mockServer.when(request().withMethod("GET").withPath("/api/v1/foo"))
-				.respond(response().withBody("{'foo':'bar'}"));
+		.respond(response().withBody("{'foo':'bar'}"));
 
 		APObject obj = new APObject();
 		gw.execute();
@@ -115,8 +115,8 @@ public final class APGatewayTest {
 
 		mockServer.when(
 				request().withMethod("POST").withPath("/api/v1/foo")
-						.withBody("{'foo':'bar'}")).respond(
-				response().withBody("{'id':'123'}"));
+				.withBody("{'foo':'bar'}")).respond(
+						response().withBody("{'id':'123'}"));
 
 		APObject obj = new APObject();
 		gw.setBody("{'foo':'bar'}");
@@ -138,8 +138,8 @@ public final class APGatewayTest {
 
 		mockServer.when(
 				request().withMethod("POST").withPath("/api/v1/foo/bar")
-						.withBody("{'foo':'bar'}")).respond(
-				response().withBody("{'id':'123'}"));
+				.withBody("{'foo':'bar'}")).respond(
+						response().withBody("{'id':'123'}"));
 
 		APObject obj = new APObject();
 		gw.setBody("{'foo':'bar'}");
@@ -147,7 +147,7 @@ public final class APGatewayTest {
 		gw.post("/bar");
 
 		APObject readResponseQuery = gw.readResponseObject(obj);
-
+		
 		Assert.assertEquals("123", readResponseQuery.get("id"));
 	}
 
