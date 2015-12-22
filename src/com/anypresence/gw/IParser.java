@@ -3,7 +3,5 @@ package com.anypresence.gw;
 import java.util.Map;
 
 public interface IParser {
-
-	public Map<String, String> parseData(String data);
-
+	public <T> T parse(String mapping, Class<T> clazz);
 }

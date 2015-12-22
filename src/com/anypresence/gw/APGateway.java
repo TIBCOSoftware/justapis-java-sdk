@@ -2,6 +2,7 @@ package com.anypresence.gw;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -66,6 +67,14 @@ public class APGateway {
 	public void execute(String url) {
 		execute(url, null);
 	}
+	
+	public void execute(HTTPMethod method) {
+		execute(this.url, method, null);
+	}
+	
+	public <T> void execute(final String url, IAPFutureCallback<T> callback) {
+		execute(url, null, callback);
+	}
 
 	/**
 	 * @param <T>
@@ -73,10 +82,12 @@ public class APGateway {
 	 * @param url
 	 *            relative url to connect to
 	 */
-	public <T> void execute(final String url, IAPFutureCallback<T> callback) {
+	private <T> void execute(final String url, final HTTPMethod method, IAPFutureCallback<T> callback) {
+		final HTTPMethod resolvedMethod = (method == null) ? this.method : method;
+
 		if (callback == null) {
 			try {
-				connect(url, method);
+				connect(url, resolvedMethod);
 			} catch (RequestException e) {
 				e.printStackTrace();
 			}
@@ -86,7 +97,7 @@ public class APGateway {
 					new Callable<T>() {
 						@SuppressWarnings("unchecked")
 						public T call() throws Exception {
-							connect(url, method);
+							connect(url, resolvedMethod);
 
 							APObject apObjecct = new APObject();
 							readResponseObject(apObjecct);
@@ -114,7 +125,7 @@ public class APGateway {
 	 * @see APGateway#post(String)
 	 */
 	public void post() {
-		execute();
+		execute(HTTPMethod.POST);
 		getRestClient().post(body);
 	}
 
@@ -125,7 +136,7 @@ public class APGateway {
 	 *            relative url to connect to
 	 */
 	public void post(String url) {
-		execute(url);
+		execute(url, HTTPMethod.POST, null);
 		getRestClient().post(body);
 	}
 
@@ -133,7 +144,7 @@ public class APGateway {
 	 * @see APGateway#get(String)
 	 */
 	public void get() {
-		execute();
+		execute(HTTPMethod.GET);
 	}
 
 	/**
@@ -143,17 +154,17 @@ public class APGateway {
 	 *            relative url to connect to
 	 */
 	public void get(String url) {
-		execute(url);
+		execute(url, HTTPMethod.GET, null);
 	}
 
 	public <T> void get(String url, IAPFutureCallback<T> callback) {
-		execute(url, callback);
+		execute(url, HTTPMethod.GET, callback);
 	}
 
 	public <T extends APObject> void readResponseObject(T obj) {
 		String response = readResponse();
 
-		Map<String, String> data = getJsonParser().parseData(response);
+		HashMap<String, String> data = getJsonParser().parse(response, HashMap.class);
 
 		if (data != null) {
 			for (Entry<String, String> entry : data.entrySet()) {

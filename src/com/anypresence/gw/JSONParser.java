@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.Map;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
@@ -21,18 +22,20 @@ public class JSONParser implements IParser {
 				.excludeFieldsWithoutExposeAnnotation().serializeNulls();
 	}
 
-	public Map<String, String> parseData(String data) {
-		Type type = new TypeToken<Map<String, String>>() {
-		}.getType();
+    public <T> T parse(String data, Class<T> clazz) {
+        JsonElement jsonObject = new com.google.gson.JsonParser().parse(data);
 
-		return defaultGsonDeserializer.create().fromJson(data, type);
-	}
+        if (jsonObject.isJsonArray()) {
+        	jsonObject = jsonObject.getAsJsonArray();
+        	System.out.println("@@ is a json array");
+        } else {
+        	// Not a json array
+        	System.out.println("@@ not a json array");
+        }
+        
+        if(clazz == JsonElement.class) return (T) jsonObject;
 
-	public Map<String, String> parseListData(String data) {
-		Type type = new TypeToken<ArrayList<Object>>() {
-		}.getType();
-
-		return defaultGsonDeserializer.create().fromJson(data, type);
-	}
+        return defaultGsonDeserializer.create().fromJson(jsonObject, clazz);
+    }
 
 }

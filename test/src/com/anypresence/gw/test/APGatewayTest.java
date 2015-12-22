@@ -63,7 +63,7 @@ public final class APGatewayTest {
 	}
 
 	@Test
-	public void test_Connect() {
+	public void test_ConnectAndExecute() {
 		APGateway.Builder builder = new APGateway.Builder();
 		builder.url("http://localhost:1080/api/v1/foo");
 		builder.method(HTTPMethod.GET);
@@ -87,8 +87,6 @@ public final class APGatewayTest {
 
 	@Test
 	public void test_Query() {
-		APQuery<APObject> query = new APQuery<APObject>();
-
 		APGateway.Builder builder = new APGateway.Builder();
 		builder.url("http://localhost:1080/api/v1/foo");
 		builder.method(HTTPMethod.GET);
@@ -109,7 +107,6 @@ public final class APGatewayTest {
 	public void test_Post() {
 		APGateway.Builder builder = new APGateway.Builder();
 		builder.url("http://localhost:1080/api/v1/foo");
-		builder.method(HTTPMethod.POST);
 
 		APGateway gw = builder.build();
 
@@ -122,6 +119,27 @@ public final class APGatewayTest {
 		gw.setBody("{'foo':'bar'}");
 
 		gw.post();
+
+		gw.readResponseObject(obj);
+
+		Assert.assertEquals("123", obj.get("id"));
+	}
+	
+	@Test
+	public void test_Get() {
+		APGateway.Builder builder = new APGateway.Builder();
+		builder.url("http://localhost:1080/api/v1/foo");
+
+		APGateway gw = builder.build();
+
+		mockServer.when(
+				request().withMethod("GET").withPath("/api/v1/foo")
+				).respond(
+						response().withBody("{'id':'123'}"));
+
+		APObject obj = new APObject();
+
+		gw.get();
 
 		gw.readResponseObject(obj);
 
