@@ -89,7 +89,8 @@ public class APGateway {
 							connect(url, method);
 
 							APObject apObjecct = new APObject();
-							return (T) readResponseObject(apObjecct);
+							readResponseObject(apObjecct);
+							return (T) apObjecct;
 						}
 					});
 
@@ -149,7 +150,7 @@ public class APGateway {
 		execute(url, callback);
 	}
 
-	public <T extends APObject> T readResponseObject(T obj) {
+	public <T extends APObject> void readResponseObject(T obj) {
 		String response = readResponse();
 
 		Map<String, String> data = getJsonParser().parseData(response);
@@ -160,10 +161,9 @@ public class APGateway {
 			}
 		}
 
-		return obj;
 	}
 
-	public <T extends List<APObject>> T readResponseObject(T obj) {
+	public <T extends List<APObject>> void readResponseObject(T obj) {
 		throw new NotImplementedException("Not yet implemented");
 	}
 

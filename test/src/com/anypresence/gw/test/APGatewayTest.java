@@ -100,9 +100,9 @@ public final class APGatewayTest {
 
 		APObject obj = new APObject();
 		gw.execute();
-		APObject readResponseQuery = gw.readResponseObject(obj);
+		gw.readResponseObject(obj);
 
-		Assert.assertEquals("bar", readResponseQuery.get("foo"));
+		Assert.assertEquals("bar", obj.get("foo"));
 	}
 
 	@Test
@@ -123,9 +123,9 @@ public final class APGatewayTest {
 
 		gw.post();
 
-		APObject readResponseQuery = gw.readResponseObject(obj);
+		gw.readResponseObject(obj);
 
-		Assert.assertEquals("123", readResponseQuery.get("id"));
+		Assert.assertEquals("123", obj.get("id"));
 	}
 
 	@Test
@@ -146,9 +146,9 @@ public final class APGatewayTest {
 
 		gw.post("/bar");
 
-		APObject readResponseQuery = gw.readResponseObject(obj);
+		gw.readResponseObject(obj);
 		
-		Assert.assertEquals("123", readResponseQuery.get("id"));
+		Assert.assertEquals("123", obj.get("id"));
 	}
 
 	@Test

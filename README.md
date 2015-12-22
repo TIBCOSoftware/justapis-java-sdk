@@ -20,9 +20,9 @@ Sends a POST synchronously
 
         gw.post("/bar");
 
-        APObject responseObject = gw.readResponseObject(obj);
+        gw.readResponseObject(obj);
         
-        String id = responseObject.get("id");
+        String id = obj.get("id");
 
 ```
 
