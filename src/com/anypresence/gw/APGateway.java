@@ -110,14 +110,13 @@ public class APGateway {
 	}
 
 	private void connect(String url, HTTPMethod method) throws RequestException {
-		getRestClient().openConnection(Utilities.updateUrl(this.url, url),
-				method);
-
 		switch (method) {
 		case POST:
-			getRestClient().post(getBody());
-		default:
+			getRestClient().post(Utilities.updateUrl(this.url, url),
+					getBody());
 			break;
+		default:
+			getRestClient().get(Utilities.updateUrl(this.url, url));
 		}
 	}
 
@@ -126,7 +125,11 @@ public class APGateway {
 	 */
 	public void post() {
 		execute(HTTPMethod.POST);
-		getRestClient().post(body);
+		try {
+			getRestClient().post(this.url, body);
+		} catch (RequestException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -137,7 +140,6 @@ public class APGateway {
 	 */
 	public void post(String url) {
 		execute(url, HTTPMethod.POST, null);
-		getRestClient().post(body);
 	}
 
 	/**

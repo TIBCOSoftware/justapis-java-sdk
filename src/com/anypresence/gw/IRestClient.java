@@ -4,11 +4,10 @@ import com.anypresence.gw.exceptions.RequestException;
 
 public interface IRestClient {
 
-	public void openConnection(String url, HTTPMethod method)
-			throws RequestException;
-
 	public String readResponse();
 
-	public void post(String body);
+	public void post(String url, String body) throws RequestException;
+	
+	public void get(String url) throws RequestException;
 
 }

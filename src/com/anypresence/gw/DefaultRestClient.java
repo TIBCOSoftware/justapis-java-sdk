@@ -18,7 +18,7 @@ public class DefaultRestClient implements IRestClient {
 	private HttpURLConnection connection;
 	private int readTimeout = 15 * 1000;
 
-	public void openConnection(String url, HTTPMethod method)
+	private void openConnection(String url, HTTPMethod method)
 			throws RequestException {
 		URL urlConnection;
 		try {
@@ -40,7 +40,9 @@ public class DefaultRestClient implements IRestClient {
 		}
 	}
 
-	public void post(String body) {
+	public void post(String url, String body) throws RequestException {
+		openConnection(url, HTTPMethod.POST);
+		
 		if (body != null) {
 			OutputStreamWriter osw;
 			try {
@@ -50,7 +52,6 @@ public class DefaultRestClient implements IRestClient {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
 		}
 	}
 
@@ -85,6 +86,10 @@ public class DefaultRestClient implements IRestClient {
 		}
 
 		return result;
+	}
+
+	public void get(String url) throws RequestException {
+		openConnection(url, HTTPMethod.GET);		
 	}
 
 }
