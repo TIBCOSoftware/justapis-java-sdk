@@ -5,6 +5,17 @@ This is an SDK that you will want to use to interface with the AnyPresence's Jus
 
 The design is meant to be modular where you can plug in your own JSON parser or rest client.
 
+Dependencies
+===========
+
+These dependencies are needed:
+
+compile 'com.google.code.gson:gson:2.5'
+
+compile 'org.apache.commons:commons-lang3:3.4'
+
+compile 'com.google.guava:guava:19.0'
+
 ===========
 Quick Examples
 
