@@ -19,250 +19,262 @@ import com.google.common.util.concurrent.ListenableFuture;
  *
  */
 public class APGateway {
-	/**
-	 * URL to connect to
-	 */
-	private String url;
+    private ILogger logger = new BaseLogger();
 
-	/**
-	 * HTTP method to use
-	 */
-	private HTTPMethod method;
+    /**
+     * URL to connect to
+     */
+    private String url;
 
-	private IRestClient restClient;
+    /**
+     * HTTP method to use
+     */
+    private HTTPMethod method;
 
-	private IParser jsonParser = new JSONParser();
+    private IRestClient restClient;
 
-	/**
-	 * Payload body for POST requests
-	 */
-	private String body;
+    private IParser jsonParser = new JSONParser();
 
-	private APGateway() {
-	}
+    /**
+     * Payload body for POST requests
+     */
+    private String body;
 
-	public String getUrl() {
-		return url;
-	}
+    private APGateway() {
+    }
 
-	protected void setUrl(String url) {
-		this.url = url;
-	}
+    public String getUrl() {
+        return url;
+    }
 
-	public HTTPMethod getMethod() {
-		return method;
-	}
+    protected void setUrl(String url) {
+        this.url = url;
+    }
 
-	public void setMethod(HTTPMethod method) {
-		this.method = method;
-	}
+    public HTTPMethod getMethod() {
+        return method;
+    }
 
-	/**
-	 * Executes the request
-	 */
-	public void execute() {
-		execute(url);
-	}
+    public void setMethod(HTTPMethod method) {
+        this.method = method;
+    }
 
-	public void execute(String url) {
-		execute(url, null);
-	}
-	
-	public void execute(HTTPMethod method) {
-		execute(this.url, method, null);
-	}
-	
-	public <T> void execute(final String url, IAPFutureCallback<T> callback) {
-		execute(url, null, callback);
-	}
+    /**
+     * Executes the request
+     */
+    public void execute() {
+        execute(url);
+    }
 
-	/**
-	 * @param <T>
-	 * @see APGateway#execute()
-	 * @param url
-	 *            relative url to connect to
-	 */
-	private <T> void execute(final String url, final HTTPMethod method, IAPFutureCallback<T> callback) {
-		final HTTPMethod resolvedMethod = (method == null) ? this.method : method;
+    public void execute(String url) {
+        execute(url, null);
+    }
 
-		if (callback == null) {
-			try {
-				connect(url, resolvedMethod);
-			} catch (RequestException e) {
-				e.printStackTrace();
-			}
-		} else {
-			// Handle callback
-			ListenableFuture<T> future = AsyncHandler.getService().submit(
-					new Callable<T>() {
-						@SuppressWarnings("unchecked")
-						public T call() throws Exception {
-							connect(url, resolvedMethod);
+    public void execute(HTTPMethod method) {
+        execute(this.url, method, null);
+    }
 
-							APObject apObjecct = new APObject();
-							readResponseObject(apObjecct);
-							return (T) apObjecct;
-						}
-					});
+    public <T> void execute(final String url, IAPFutureCallback<T> callback) {
+        execute(url, null, callback);
+    }
 
-			AsyncHandler.handleCallbacks(future, callback);
-		}
-	}
+    /**
+     * @param <T>
+     * @see APGateway#execute()
+     * @param url
+     *            relative url to connect to
+     */
+    private <T> void execute(final String url, final HTTPMethod method,
+            IAPFutureCallback<T> callback) {
+        final HTTPMethod resolvedMethod = (method == null) ? this.method
+                : method;
 
-	private void connect(String url, HTTPMethod method) throws RequestException {
-		switch (method) {
-		case POST:
-			getRestClient().post(Utilities.updateUrl(this.url, url),
-					getBody());
-			break;
-		default:
-			getRestClient().get(Utilities.updateUrl(this.url, url));
-		}
-	}
+        if (callback == null) {
+            try {
+                connect(url, resolvedMethod);
+            } catch (RequestException e) {
+                e.printStackTrace();
+            }
+        } else {
+            // Handle callback
+            ListenableFuture<T> future = AsyncHandler.getService().submit(
+                    new Callable<T>() {
+                        @SuppressWarnings("unchecked")
+                        public T call() throws Exception {
+                            connect(url, resolvedMethod);
 
-	/**
-	 * @see APGateway#post(String)
-	 */
-	public void post() {
-		execute(HTTPMethod.POST);
-		try {
-			getRestClient().post(this.url, body);
-		} catch (RequestException e) {
-			e.printStackTrace();
-		}
-	}
+                            APObject apObjecct = new APObject();
+                            readResponseObject(apObjecct);
+                            return (T) apObjecct;
+                        }
+                    });
 
-	/**
-	 * Sends post request
-	 * 
-	 * @param url
-	 *            relative url to connect to
-	 */
-	public void post(String url) {
-		execute(url, HTTPMethod.POST, null);
-	}
+            AsyncHandler.handleCallbacks(future, callback);
+        }
+    }
 
-	/**
-	 * @see APGateway#get(String)
-	 */
-	public void get() {
-		execute(HTTPMethod.GET);
-	}
+    private void connect(String url, HTTPMethod method) throws RequestException {
+        switch (method) {
+        case POST:
+            getRestClient().post(Utilities.updateUrl(this.url, url), getBody());
+            break;
+        default:
+            getRestClient().get(Utilities.updateUrl(this.url, url));
+        }
+    }
 
-	/**
-	 * Sends a get request
-	 * 
-	 * @param url
-	 *            relative url to connect to
-	 */
-	public void get(String url) {
-		execute(url, HTTPMethod.GET, null);
-	}
+    /**
+     * @see APGateway#post(String)
+     */
+    public void post() {
+        execute(HTTPMethod.POST);
+        try {
+            getRestClient().post(this.url, body);
+        } catch (RequestException e) {
+            e.printStackTrace();
+        }
+    }
 
-	public <T> void get(String url, IAPFutureCallback<T> callback) {
-		execute(url, HTTPMethod.GET, callback);
-	}
+    /**
+     * Sends post request
+     * 
+     * @param url
+     *            relative url to connect to
+     */
+    public void post(String url) {
+        execute(url, HTTPMethod.POST, null);
+    }
 
-	public <T extends APObject> void readResponseObject(T obj) {
-		String response = readResponse();
+    /**
+     * @see APGateway#get(String)
+     */
+    public void get() {
+        execute(HTTPMethod.GET);
+    }
 
-		HashMap<String, String> data = getJsonParser().parse(response, HashMap.class);
+    /**
+     * Sends a get request
+     * 
+     * @param url
+     *            relative url to connect to
+     */
+    public void get(String url) {
+        execute(url, HTTPMethod.GET, null);
+    }
 
-		if (data != null) {
-			for (Entry<String, String> entry : data.entrySet()) {
-				obj.set(entry.getKey(), entry.getValue().toString());
-			}
-		}
+    public <T> void get(String url, IAPFutureCallback<T> callback) {
+        execute(url, HTTPMethod.GET, callback);
+    }
 
-	}
+    public <T extends APObject> void readResponseObject(T obj) {
+        String response = readResponse();
 
-	public <T extends List<APObject>> void readResponseObject(T obj) {
-		throw new NotImplementedException("Not yet implemented");
-	}
+        HashMap<String, String> data = getJsonParser().parse(response,
+                HashMap.class);
 
-	/**
-	 * Reads the raw response.
-	 * 
-	 * @return the response
-	 */
-	public String readResponse() {
-		return getRestClient().readResponse();
-	}
+        if (data != null) {
+            for (Entry<String, String> entry : data.entrySet()) {
+                obj.set(entry.getKey(), entry.getValue().toString());
+            }
+        }
 
-	public IRestClient getRestClient() {
-		if (restClient == null) {
-			restClient = new DefaultRestClient();
-		}
+    }
 
-		return restClient;
-	}
+    public <T extends List<APObject>> void readResponseObject(T obj) {
+        throw new NotImplementedException("Not yet implemented");
+    }
 
-	public void setRestClient(IRestClient restClient) {
-		this.restClient = restClient;
-	}
+    /**
+     * Reads the raw response.
+     * 
+     * @return the response
+     */
+    public String readResponse() {
+        return getRestClient().readResponse();
+    }
 
-	public String getBody() {
-		return body;
-	}
+    public IRestClient getRestClient() {
+        if (restClient == null) {
+            restClient = new DefaultRestClient();
+        }
 
-	public void setBody(String body) {
-		this.body = body;
-	}
+        return restClient;
+    }
 
-	/**
-	 * Sets the relative url
-	 * 
-	 * @param url
-	 */
-	public void setRelativeUrl(String url) {
-		String updatedUrl = this.url + "/" + url;
-		URI uri;
-		try {
-			uri = new URI(updatedUrl);
-			uri = uri.normalize();
+    public void setRestClient(IRestClient restClient) {
+        this.restClient = restClient;
+    }
 
-			this.url = uri.toString();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
-	}
+    public String getBody() {
+        return body;
+    }
 
-	public IParser getJsonParser() {
-		return jsonParser;
-	}
+    public void setBody(String body) {
+        this.body = body;
+    }
 
-	public void setJsonParser(IParser jsonParser) {
-		this.jsonParser = jsonParser;
-	}
+    /**
+     * Sets the relative url
+     * 
+     * @param url
+     */
+    public void setRelativeUrl(String url) {
+        String updatedUrl = this.url + "/" + url;
+        URI uri;
+        try {
+            uri = new URI(updatedUrl);
+            uri = uri.normalize();
 
-	/**
-	 * Builder for APGateway
-	 * 
-	 */
-	public static class Builder {
-		String url;
-		HTTPMethod method;
+            this.url = uri.toString();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
 
-		public Builder() {
-		}
+    public IParser getJsonParser() {
+        return jsonParser;
+    }
 
-		public Builder url(String url) {
-			this.url = url;
-			return this;
-		}
+    public void setJsonParser(IParser jsonParser) {
+        this.jsonParser = jsonParser;
+    }
 
-		public Builder method(HTTPMethod method) {
-			this.method = method;
-			return this;
-		}
+    public ILogger getLogger() {
+        return logger;
+    }
 
-		public APGateway build() {
-			APGateway gw = new APGateway();
-			gw.setUrl(url);
-			gw.setMethod(method);
+    public void setLogger(ILogger logger) {
+        this.logger = logger;
+    }
 
-			return gw;
-		}
-	}
+    /**
+     * Builder for APGateway
+     * 
+     */
+    public static class Builder {
+        String url;
+        HTTPMethod method;
+
+        public Builder() {
+        }
+
+        public Builder url(String url) {
+            this.url = url;
+            return this;
+        }
+
+        public Builder method(HTTPMethod method) {
+            this.method = method;
+            return this;
+        }
+
+        public APGateway build() {
+            APGateway gw = new APGateway();
+            gw.setUrl(url);
+            gw.setMethod(method);
+
+            return gw;
+        }
+    }
 
 }

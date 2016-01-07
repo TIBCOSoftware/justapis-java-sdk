@@ -15,81 +15,81 @@ import com.anypresence.gw.exceptions.RequestException;
 
 public class DefaultRestClient implements IRestClient {
 
-	private HttpURLConnection connection;
-	private int readTimeout = 15 * 1000;
+    private HttpURLConnection connection;
+    private int readTimeout = 15 * 1000;
 
-	private void openConnection(String url, HTTPMethod method)
-			throws RequestException {
-		URL urlConnection;
-		try {
-			urlConnection = new URL(url);
-			connection = (HttpURLConnection) urlConnection.openConnection();
-			connection.setRequestMethod(method.name());
-			if (method == HTTPMethod.POST) {
-				connection.setDoOutput(true);
-				connection.setRequestProperty("Content-Type",
-						"application/json");
-				connection.setRequestProperty("Accept", "application/json");
-			}
-			connection.setReadTimeout(readTimeout);
-			connection.connect();
-		} catch (MalformedURLException e) {
-			throw new RequestException(e);
-		} catch (IOException e) {
-			throw new RequestException(e);
-		}
-	}
+    private void openConnection(String url, HTTPMethod method)
+            throws RequestException {
+        URL urlConnection;
+        try {
+            urlConnection = new URL(url);
+            connection = (HttpURLConnection) urlConnection.openConnection();
+            connection.setRequestMethod(method.name());
+            if (method == HTTPMethod.POST) {
+                connection.setDoOutput(true);
+                connection.setRequestProperty("Content-Type",
+                        "application/json");
+                connection.setRequestProperty("Accept", "application/json");
+            }
+            connection.setReadTimeout(readTimeout);
+            connection.connect();
+        } catch (MalformedURLException e) {
+            throw new RequestException(e);
+        } catch (IOException e) {
+            throw new RequestException(e);
+        }
+    }
 
-	public void post(String url, String body) throws RequestException {
-		openConnection(url, HTTPMethod.POST);
-		
-		if (body != null) {
-			OutputStreamWriter osw;
-			try {
-				osw = new OutputStreamWriter(connection.getOutputStream());
-				osw.write(body);
-				osw.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+    public void post(String url, String body) throws RequestException {
+        openConnection(url, HTTPMethod.POST);
 
-	public String readResponse() {
-		BufferedReader reader = null;
-		List<String> lines = new ArrayList<String>();
-		String result = "";
-		try {
-			reader = new BufferedReader(new InputStreamReader(
-					connection.getInputStream()));
-			String line = null;
+        if (body != null) {
+            OutputStreamWriter osw;
+            try {
+                osw = new OutputStreamWriter(connection.getOutputStream());
+                osw.write(body);
+                osw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
-			while ((line = reader.readLine()) != null) {
-				lines.add(line);
-				result += line;
-			}
+    public String readResponse() {
+        BufferedReader reader = null;
+        List<String> lines = new ArrayList<String>();
+        String result = "";
+        try {
+            reader = new BufferedReader(new InputStreamReader(
+                    connection.getInputStream()));
+            String line = null;
 
-			for (String s : lines) {
-				System.out.println(" " + s);
-			}
+            while ((line = reader.readLine()) != null) {
+                lines.add(line);
+                result += line;
+            }
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			if (reader != null) {
-				try {
-					reader.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+            for (String s : lines) {
+                Setup.getLogger().log(" " + s);
+            }
 
-		return result;
-	}
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
-	public void get(String url) throws RequestException {
-		openConnection(url, HTTPMethod.GET);		
-	}
+        return result;
+    }
+
+    public void get(String url) throws RequestException {
+        openConnection(url, HTTPMethod.GET);
+    }
 
 }
