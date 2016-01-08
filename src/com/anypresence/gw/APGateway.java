@@ -39,6 +39,8 @@ public class APGateway {
      * Payload body for POST requests
      */
     private String body;
+    
+    private boolean useCertPinning = false;
 
     private APGateway() {
     }
@@ -247,6 +249,14 @@ public class APGateway {
         this.logger = logger;
     }
 
+    public boolean isUseCertPinning() {
+        return useCertPinning;
+    }
+
+    public void setUseCertPinning(boolean useCertPinning) {
+        this.useCertPinning = useCertPinning;
+    }
+
     /**
      * Builder for APGateway
      * 
@@ -254,6 +264,7 @@ public class APGateway {
     public static class Builder {
         String url;
         HTTPMethod method;
+        boolean useCertPinning = false;
 
         public Builder() {
         }
@@ -265,6 +276,11 @@ public class APGateway {
 
         public Builder method(HTTPMethod method) {
             this.method = method;
+            return this;
+        }
+        
+        public Builder useCertPinning(boolean useCertPinning) {
+            this.useCertPinning = useCertPinning;
             return this;
         }
 
