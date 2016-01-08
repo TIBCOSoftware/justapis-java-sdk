@@ -17,6 +17,12 @@ public class DefaultRestClient implements IRestClient {
 
     private HttpURLConnection connection;
     private int readTimeout = 15 * 1000;
+    private boolean shouldUseCertPinning = false;
+    
+    public DefaultRestClient useCertPinning(boolean shouldUseCertPinning) {
+        this.shouldUseCertPinning = shouldUseCertPinning;
+        return this;
+    }
 
     private void openConnection(String url, HTTPMethod method)
             throws RequestException {
@@ -24,6 +30,14 @@ public class DefaultRestClient implements IRestClient {
         try {
             urlConnection = new URL(url);
             connection = (HttpURLConnection) urlConnection.openConnection();
+            
+            if (urlConnection.getProtocol().toLowerCase().equals("https")) {
+                // Use cert pinning?
+                 if (shouldUseCertPinning) {
+                     connection = CertPinningManager.getInstance().useCertPinningSSLContext(connection);
+                 }
+            }
+            
             connection.setRequestMethod(method.name());
             if (method == HTTPMethod.POST) {
                 connection.setDoOutput(true);

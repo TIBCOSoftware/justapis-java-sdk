@@ -14,6 +14,7 @@ public class JSONParserTest {
     public void test_ParseMap() {
         String data = "{'apple': 'yummy', 'tofu':'ok'}";
 
+        @SuppressWarnings("unchecked")
         HashMap<String, String> val = new JSONParser().parse(data,
                 HashMap.class);
         Assert.assertTrue(val.get("apple").equals("yummy"));
@@ -28,7 +29,6 @@ public class JSONParserTest {
         HashMap<String, String> result = jsonParser.parse(data, HashMap.class);
 
         Assert.assertTrue(result.get("apple").equals("yummy"));
-
     }
 
 }
