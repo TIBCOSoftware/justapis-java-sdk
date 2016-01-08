@@ -1,4 +1,4 @@
-Android AP Gateway
+Java AP JustAPI Gateway
 ===========
 
 This is an SDK that you will want to use to interface with the AnyPresence's JustAPI technology. 
