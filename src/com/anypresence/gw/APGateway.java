@@ -41,6 +41,10 @@ public class APGateway {
     private String body;
     
     private boolean useCertPinning = false;
+    
+    public static void shutdownServices() {
+        AsyncHandler.shutdownServices();
+    }
 
     private APGateway() {
     }
@@ -116,6 +120,9 @@ public class APGateway {
     }
 
     private void connect(String url, HTTPMethod method) throws RequestException {
+        if (getRestClient() instanceof DefaultRestClient) {
+            ((DefaultRestClient)getRestClient()).useCertPinning(useCertPinning);
+        }
         switch (method) {
         case POST:
             getRestClient().post(Utilities.updateUrl(this.url, url), getBody());
@@ -288,6 +295,7 @@ public class APGateway {
             APGateway gw = new APGateway();
             gw.setUrl(url);
             gw.setMethod(method);
+            gw.setUseCertPinning(useCertPinning);
 
             return gw;
         }

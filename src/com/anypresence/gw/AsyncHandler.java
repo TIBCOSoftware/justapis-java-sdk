@@ -15,6 +15,10 @@ public class AsyncHandler {
 	public static ListeningExecutorService getService() {
 		return service;
 	}
+	
+	public static void shutdownServices() {
+	    getService().shutdown();
+	}
 
 	public static <V> void handleCallbacks(ListenableFuture<V> future,
 			IAPFutureCallback<V> futureCallback,
