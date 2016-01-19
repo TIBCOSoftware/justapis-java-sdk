@@ -11,8 +11,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.io.OutputStreamWriter;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+
 import com.anypresence.gw.exceptions.RequestException;
 
+/**
+ * A default rest client
+ *
+ */
 public class DefaultRestClient implements IRestClient {
 
     private HttpURLConnection connection;
@@ -50,6 +58,7 @@ public class DefaultRestClient implements IRestClient {
         } catch (MalformedURLException e) {
             throw new RequestException(e);
         } catch (IOException e) {
+            e.printStackTrace();
             throw new RequestException(e);
         }
     }
@@ -72,21 +81,29 @@ public class DefaultRestClient implements IRestClient {
     public String readResponse() {
         BufferedReader reader = null;
         List<String> lines = new ArrayList<String>();
-        String result = "";
+        String result = "";       
+        String url = ""; // URL used for the last request
+        
         try {
             reader = new BufferedReader(new InputStreamReader(
                     connection.getInputStream()));
             String line = null;
 
+            url = connection.getURL().toString();
+            
             while ((line = reader.readLine()) != null) {
                 lines.add(line);
                 result += line;
             }
 
             for (String s : lines) {
-                Setup.getLogger().log(" " + s);
+                Config.getLogger().log(" " + s);
             }
 
+            // Cache the result
+            if (Config.getCacheManager() != null) {
+                Config.getCacheManager().putIntoCache("GET", url, result);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -98,7 +115,7 @@ public class DefaultRestClient implements IRestClient {
                 }
             }
         }
-
+        
         return result;
     }
 
