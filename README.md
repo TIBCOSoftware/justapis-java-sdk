@@ -1,4 +1,4 @@
-Android AP Gateway
+Java AP JustAPI Gateway
 ===========
 
 This is an SDK that you will want to use to interface with the AnyPresence's JustAPI technology. 
@@ -77,4 +77,16 @@ Plug in your own JSON Parser
         
         APGateway gw = builder.build();
         gw.setJsonParser(new MyParser());
+```
+
+Use certificate pinning
+```{java}
+        CertPinningManager.getInstance().setupCa("myalias", certificateInBytes);
+        
+        APGateway.Builder builder = new APGateway.Builder();
+        builder.url("https://localhost:3000");
+        builder.useCertPinning(true);
+        
+        APGateway gw = builder.build();
+        gw.post("/bar");
 ```
