@@ -2,6 +2,7 @@ package com.anypresence.gw;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.Authenticator.RequestorType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,8 @@ import org.apache.commons.lang3.NotImplementedException;
 
 import com.anypresence.gw.callbacks.IAPFutureCallback;
 import com.anypresence.gw.exceptions.RequestException;
+import com.anypresence.gw.http.DefaultRestClient;
+import com.anypresence.gw.http.IRestClient;
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
@@ -21,19 +24,18 @@ import com.google.common.util.concurrent.ListenableFuture;
 public class APGateway {
     private ILogger logger = new BaseLogger();
 
-    /**
-     * URL to connect to
-     */
+    /** URL to connect to */
     private String url;
 
-    /**
-     * HTTP method to use
-     */
+    /** HTTP method to use */
     private HTTPMethod method;
 
+    /** Rest client to use */
     private IRestClient restClient;
 
     private IParser jsonParser = new JSONParser();
+    
+    private static RequestQueue requestQueue;
 
     /**
      * Payload body for POST requests
@@ -67,20 +69,21 @@ public class APGateway {
 
     /**
      * Executes the request
+     * @throws RequestException 
      */
-    public void execute() {
+    public void execute() throws RequestException {
         execute(url);
     }
 
-    public void execute(String url) {
+    public void execute(String url) throws RequestException {
         execute(url, null);
     }
 
-    public void execute(HTTPMethod method) {
+    public void execute(HTTPMethod method) throws RequestException {
         execute(this.url, method, null);
     }
 
-    public <T> void execute(final String url, IAPFutureCallback<T> callback) {
+    public <T> void execute(final String url, IAPFutureCallback<T> callback) throws RequestException {
         execute(url, null, callback);
     }
 
@@ -89,57 +92,59 @@ public class APGateway {
      * @see APGateway#execute()
      * @param url
      *            relative url to connect to
+     * @throws RequestException 
      */
     private <T> void execute(final String url, final HTTPMethod method,
-            IAPFutureCallback<T> callback) {
+            IAPFutureCallback<T> callback) throws RequestException {
         final HTTPMethod resolvedMethod = (method == null) ? this.method
                 : method;
 
         if (callback == null) {
-            try {
-                connect(url, resolvedMethod);
-            } catch (RequestException e) {
-                e.printStackTrace();
-            }
+            connect(url, resolvedMethod);
         } else {
-            // Handle callback
-            ListenableFuture<T> future = AsyncHandler.getService().submit(
-                    new Callable<T>() {
-                        @SuppressWarnings("unchecked")
-                        public T call() throws Exception {
-                            connect(url, resolvedMethod);
-
-                            APObject apObjecct = new APObject();
-                            readResponseObject(apObjecct);
-                            return (T) apObjecct;
-                        }
-                    });
-
-            AsyncHandler.handleCallbacks(future, callback);
+            // Handle asynchronous case
+            StringRequestContext requestContext = new StringRequestContext(resolvedMethod, url);
+            requestContext.setGateway(this);
+            requestContext.setCallback((IAPFutureCallback<String>) callback);
+            getRequestQueue().add(requestContext);
+            
+            if (!getRequestQueue().isRunning) {
+                getRequestQueue().start();
+            }
         }
     }
 
+    /**
+     * Connect to endpoint using the registered rest client
+     * 
+     * @param url
+     * @param method
+     * @throws RequestException
+     */
     private void connect(String url, HTTPMethod method) throws RequestException {
         if (getRestClient() instanceof DefaultRestClient) {
             ((DefaultRestClient)getRestClient()).useCertPinning(useCertPinning);
         }
+        
+        StringRequestContext request = new StringRequestContext(method, Utilities.updateUrl(this.url, url));
+        
         switch (method) {
-        case POST:
-            getRestClient().post(Utilities.updateUrl(this.url, url), getBody());
-            break;
-        default:
-            getRestClient().get(Utilities.updateUrl(this.url, url));
+            case POST:            
+                request.setPostBody(body);
+                break;
+            default:
+                //
         }
+        getRestClient().executeRequest(request);
     }
 
     /**
      * @see APGateway#post(String)
      */
     public void post() {
-        execute(HTTPMethod.POST);
         try {
-            getRestClient().post(this.url, body);
-        } catch (RequestException e) {
+            execute(this.url, HTTPMethod.POST, null);
+        } catch (RequestException e) {           
             e.printStackTrace();
         }
     }
@@ -151,14 +156,22 @@ public class APGateway {
      *            relative url to connect to
      */
     public void post(String url) {
-        execute(url, HTTPMethod.POST, null);
+        try {
+            execute(url, HTTPMethod.POST, null);
+        } catch (RequestException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
      * @see APGateway#get(String)
      */
     public void get() {
-        execute(HTTPMethod.GET);
+        try {
+            execute(HTTPMethod.GET);
+        } catch (RequestException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -168,17 +181,29 @@ public class APGateway {
      *            relative url to connect to
      */
     public void get(String url) {
-        execute(url, HTTPMethod.GET, null);
+        try {
+            execute(url, HTTPMethod.GET, null);
+        } catch (RequestException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public <T> void get(IAPFutureCallback<T> callback) {
+        get(url, callback);
     }
 
     public <T> void get(String url, IAPFutureCallback<T> callback) {
-        execute(url, HTTPMethod.GET, callback);
+        try {
+            execute(url, HTTPMethod.GET, callback);
+        } catch (RequestException e) {
+            e.printStackTrace();
+        }
     }
 
     public <T extends APObject> void readResponseObject(T obj) {
-        String response = readResponse();
+        ResponseFromRequest response = getRestClient().readResponse();
 
-        HashMap<String, String> data = getJsonParser().parse(response,
+        HashMap<String, String> data = getJsonParser().parse(response.data,
                 HashMap.class);
 
         if (data != null) {
@@ -188,19 +213,16 @@ public class APGateway {
         }
 
     }
-
+    
+    // TODO: implement this
     public <T extends List<APObject>> void readResponseObject(T obj) {
         throw new NotImplementedException("Not yet implemented");
     }
-
-    /**
-     * Reads the raw response.
-     * 
-     * @return the response
-     */
-    public String readResponse() {
+    
+    public ResponseFromRequest readResponse() {
         return getRestClient().readResponse();
     }
+
 
     public IRestClient getRestClient() {
         if (restClient == null) {
@@ -262,6 +284,17 @@ public class APGateway {
 
     public void setUseCertPinning(boolean useCertPinning) {
         this.useCertPinning = useCertPinning;
+    }
+
+    public RequestQueue getRequestQueue() {
+        if (requestQueue == null) {
+            requestQueue = new RequestQueue();
+        }
+        return requestQueue;
+    }
+
+    public void setRequestQueue(RequestQueue requestQueue) {
+        this.requestQueue = requestQueue;
     }
 
     /**
