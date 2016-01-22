@@ -5,7 +5,6 @@ import java.net.URISyntaxException;
 
 public class Utilities {
     public static String updateUrl(String baseUrl, String urlToAppendOrReplace) {
-
         try {
             URI uri;
             uri = new URI(urlToAppendOrReplace);

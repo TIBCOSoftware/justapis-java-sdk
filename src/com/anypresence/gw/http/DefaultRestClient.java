@@ -1,4 +1,4 @@
-package com.anypresence.gw;
+package com.anypresence.gw.http;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,6 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.io.OutputStreamWriter;
 
+import com.anypresence.gw.CertPinningManager;
+import com.anypresence.gw.Config;
+import com.anypresence.gw.HTTPMethod;
+import com.anypresence.gw.RequestContext;
+import com.anypresence.gw.ResponseFromRequest;
 import com.anypresence.gw.exceptions.RequestException;
 
 public class DefaultRestClient implements IRestClient {
@@ -28,6 +33,7 @@ public class DefaultRestClient implements IRestClient {
             throws RequestException {
         URL urlConnection;
         try {
+            Config.getLogger().log("URL connecting to: " + url);
             urlConnection = new URL(url);
             connection = (HttpURLConnection) urlConnection.openConnection();
             
@@ -69,7 +75,7 @@ public class DefaultRestClient implements IRestClient {
         }
     }
 
-    public String readResponse() {
+    public ResponseFromRequest readResponse() {
         BufferedReader reader = null;
         List<String> lines = new ArrayList<String>();
         String result = "";
@@ -84,7 +90,7 @@ public class DefaultRestClient implements IRestClient {
             }
 
             for (String s : lines) {
-                Setup.getLogger().log(" " + s);
+                Config.getLogger().log(" " + s);
             }
 
         } catch (IOException e) {
@@ -98,12 +104,25 @@ public class DefaultRestClient implements IRestClient {
                 }
             }
         }
-
-        return result;
+        
+        try {
+            return new ResponseFromRequest(connection.getResponseCode(), result);
+        } catch (IOException e) {
+            return new ResponseFromRequest(-1, result);
+        }
     }
 
     public void get(String url) throws RequestException {
         openConnection(url, HTTPMethod.GET);
+    }
+
+    public void executeRequest(RequestContext<?> request) throws RequestException {
+       if (request.getMethod() == HTTPMethod.POST) {
+           post(request.getUrl(), request.getPostBody());
+       } else {
+           get(request.getUrl());
+       }
+        
     }
 
 }
