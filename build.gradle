@@ -28,7 +28,7 @@ dependencies {
 sourceSets {
     main {
         java {
-            srcDir 'src'
+            srcDir 'src/main/java'
         }
     }
 }
