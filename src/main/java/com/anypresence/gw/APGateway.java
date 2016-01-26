@@ -40,7 +40,7 @@ public class APGateway {
     /**
      * Payload body for POST requests
      */
-    private String body;
+    private Map<String,String> postParam;
     
     private boolean useCertPinning = false;
     
@@ -132,7 +132,7 @@ public class APGateway {
         
         switch (method) {
             case POST:            
-                request.setPostBody(body);
+                request.setPostParam(postParam);
                 break;
             default:
                 // Nothing to do
@@ -233,12 +233,12 @@ public class APGateway {
         this.restClient = restClient;
     }
 
-    public String getBody() {
-        return body;
+    public Map<String,String> getPostParam() {
+        return postParam;
     }
 
-    public void setBody(String body) {
-        this.body = body;
+    public void setPostParam(Map<String,String> postParam) {
+        this.postParam = postParam;
     }
 
     /**

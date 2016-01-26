@@ -1,6 +1,8 @@
 package com.anypresence.gw.test;
 
 import java.net.HttpURLConnection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
@@ -114,11 +116,13 @@ public final class APGatewayTest {
 
         mockServer.when(
                 request().withMethod("POST").withPath("/api/v1/foo")
-                        .withBody("{'foo':'bar'}")).respond(
+                        .withBody("{\"foo\":\"bar\"}")).respond(
                 response().withBody("{'id':'123'}"));
 
         APObject obj = new APObject();
-        gw.setBody("{'foo':'bar'}");
+        Map<String,String> param = new HashMap<String, String>();
+        param.put("foo", "bar");
+        gw.setPostParam(param);
 
         gw.post();
 
@@ -135,7 +139,7 @@ public final class APGatewayTest {
         APGateway gw = builder.build();
 
         mockServer.when(request().withMethod("GET").withPath("/api/v1/foo"))
-                .respond(response().withBody("{'id':'123'}"));
+                .respond(response().withBody("{\"id\":\"123\"}"));
 
         APObject obj = new APObject();
 
@@ -158,11 +162,13 @@ public final class APGatewayTest {
 
         mockServer.when(
                 request().withMethod("POST").withPath("/api/v1/foo/bar")
-                        .withBody("{'foo':'bar'}")).respond(
+                        .withBody("{\"foo\":\"bar\"}")).respond(
                 response().withBody("{'id':'123'}"));
 
         APObject obj = new APObject();
-        gw.setBody("{'foo':'bar'}");
+        Map<String,String> param = new HashMap<String, String>();
+        param.put("foo", "bar");
+        gw.setPostParam(param);
 
         gw.post("/bar");
 

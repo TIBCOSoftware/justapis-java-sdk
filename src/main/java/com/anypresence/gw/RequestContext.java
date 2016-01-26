@@ -18,7 +18,7 @@ public abstract class RequestContext<T> implements Comparable<RequestContext<T>>
     private Map<String,String> headers;
     private boolean shouldPinCert;
     private HTTPMethod method;
-    private String postBody;
+    private Map<String,String> postParam;
     
     private APGateway gateway;
     
@@ -63,12 +63,12 @@ public abstract class RequestContext<T> implements Comparable<RequestContext<T>>
         this.method = method;
     }
 
-    public String getPostBody() {
-        return postBody;
+    public Map<String,String> getPostParam() {
+        return postParam;
     }
 
-    public void setPostBody(String postBody) {
-        this.postBody = postBody;
+    public void setPostParam(Map<String,String> postParam) {
+        this.postParam = postParam;
     }
 
     public APGateway getGateway() {
