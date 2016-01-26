@@ -37,9 +37,6 @@ public class APGateway {
     /** The request queue */
     private static RequestQueue requestQueue;
     
-    private static CertPinningManager certPinningManager;
-    
-
     /**
      * Payload body for POST requests
      */
@@ -47,8 +44,12 @@ public class APGateway {
     
     private boolean useCertPinning = false;
     
-    public static void shutdownServices() {
-        AsyncHandler.shutdownServices();
+    public static void stopRequestQueue() {
+        requestQueue.stop();
+    }
+    
+    public static void startRequestQueue() {
+        requestQueue.start();
     }
 
     private APGateway() {
@@ -106,11 +107,6 @@ public class APGateway {
             connect(url, resolvedMethod);
         } else {
             // Handle asynchronous case
-//            StringRequestContext requestContext = new StringRequestContext(resolvedMethod, url);
-//            requestContext.setGateway(this);
-//            requestContext.setCallback((IAPFutureCallback<String>) callback);
-            
-            
             RequestContext<?> requestContext = callback.createRequestContext(resolvedMethod, url, this);
             getRequestQueue().add(requestContext);
             
@@ -139,7 +135,7 @@ public class APGateway {
                 request.setPostBody(body);
                 break;
             default:
-                //
+                // Nothing to do
         }
         getRestClient().executeRequest(request);
     }

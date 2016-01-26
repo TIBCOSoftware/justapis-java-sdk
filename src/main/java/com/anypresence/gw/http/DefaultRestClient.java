@@ -15,12 +15,12 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 
+import com.anypresence.gw.APGateway;
 import com.anypresence.gw.CertPinningManager;
 import com.anypresence.gw.Config;
 import com.anypresence.gw.HTTPMethod;
 import com.anypresence.gw.RequestContext;
 import com.anypresence.gw.ResponseFromRequest;
-
 import com.anypresence.gw.exceptions.RequestException;
 
 /**
@@ -49,7 +49,7 @@ public class DefaultRestClient implements IRestClient {
             if (urlConnection.getProtocol().toLowerCase().equals("https")) {
                 // Use cert pinning?
                  if (shouldUseCertPinning) {
-                     connection = CertPinningManager.getInstance().useCertPinningSSLContext(connection);
+                     connection = APGateway.getCertPinningManager().useCertPinningSSLContext(connection);
                  }
             }
             

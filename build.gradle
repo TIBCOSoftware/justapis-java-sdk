@@ -9,13 +9,6 @@ description = """"""
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
 
-
-
-repositories {
-        
-     mavenRepo url: "https://oss.sonatype.org/content/repositories/snapshots/"
-     mavenRepo url: "http://repo.maven.apache.org/maven2"
-}
 dependencies {
     compile group: 'com.google.code.gson', name: 'gson', version:'2.5'
     compile group: 'org.apache.commons', name: 'commons-lang3', version:'3.4'
