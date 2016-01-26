@@ -1,6 +1,7 @@
 package com.anypresence.gw.test;
 
 import java.net.HttpURLConnection;
+import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -24,6 +25,8 @@ import static org.mockserver.model.HttpResponse.response;
 import static org.mockserver.verify.VerificationTimes.exactly;
 
 import com.anypresence.gw.*;
+import com.anypresence.gw.callbacks.APCallback;
+import com.anypresence.gw.exceptions.RequestException;
 
 import static org.mockito.Mockito.*;
 
@@ -45,7 +48,7 @@ public final class APGatewayTest {
 
     @AfterClass
     public static void stopProxy() {
-        proxy.stop();
+        proxy.stop();       
     }
 
     @After
@@ -63,7 +66,7 @@ public final class APGatewayTest {
     }
 
     @Test
-    public void test_ConnectAndExecute() {
+    public void test_ConnectAndExecute() throws RequestException {
         APGateway.Builder builder = new APGateway.Builder();
         builder.url("http://localhost:1080/api/v1/foo");
         builder.method(HTTPMethod.GET);
@@ -81,12 +84,12 @@ public final class APGatewayTest {
 
         gw.execute();
 
-        String responseBody = gw.readResponse();
+        String responseBody = gw.readResponse().data;
         Assert.assertEquals("testing123", responseBody);
     }
 
     @Test
-    public void test_Query() {
+    public void test_Query() throws RequestException {
         APGateway.Builder builder = new APGateway.Builder();
         builder.url("http://localhost:1080/api/v1/foo");
         builder.method(HTTPMethod.GET);
@@ -143,6 +146,8 @@ public final class APGatewayTest {
 
         Assert.assertEquals("123", obj.get("id"));
     }
+    
+
 
     @Test
     public void test_PostWithUrl() {
@@ -180,4 +185,28 @@ public final class APGatewayTest {
                 gw.getUrl());
     }
 
+  @Test
+  public void test_GetAsynchronously() throws InterruptedException {
+      APGateway.Builder builder = new APGateway.Builder();
+      builder.url("http://localhost:1080/api/v1/foo");
+      builder.method(HTTPMethod.GET);
+      APGateway gw = builder.build();
+
+      mockServer.when(request().withMethod("GET").withPath("/api/v1/foo"))
+              .respond(response().withBody("{'id':'123'}"));
+      final CountDownLatch endSignal = new CountDownLatch(1);
+
+      gw.get(new APCallback<String>() {
+          @Override
+          public void finished(String object, Throwable ex) {
+              Assert.assertNull(ex);
+              
+              endSignal.countDown();
+          }
+      });
+      
+      endSignal.await();
+      
+      gw.getRequestQueue().stop();
+  }
 }
