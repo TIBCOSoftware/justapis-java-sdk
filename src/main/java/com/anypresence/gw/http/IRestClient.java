@@ -13,9 +13,5 @@ public interface IRestClient {
      */
     public ResponseFromRequest readResponse();
 
-//    public void post(String url, String body) throws RequestException;
-//
-//    public void get(String url) throws RequestException;
-
     public void executeRequest(RequestContext<?> request) throws RequestException;
 }

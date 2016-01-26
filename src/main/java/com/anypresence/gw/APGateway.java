@@ -35,7 +35,9 @@ public class APGateway {
 
     private IParser jsonParser = new JSONParser();
     
+    /** The request queue */
     private static RequestQueue requestQueue;
+    
 
     /**
      * Payload body for POST requests
@@ -212,11 +214,6 @@ public class APGateway {
             }
         }
 
-    }
-    
-    // TODO: implement this
-    public <T extends List<APObject>> void readResponseObject(T obj) {
-        throw new NotImplementedException("Not yet implemented");
     }
     
     public ResponseFromRequest readResponse() {
