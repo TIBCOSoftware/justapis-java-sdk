@@ -1,6 +1,6 @@
 package com.anypresence.gw;
 
-//import com.anypresence.gw.cache.ICacheManager;
+import com.anypresence.gw.cache.ICacheManager;
 
 public class Config {
     private static ILogger logger = new BaseLogger();
