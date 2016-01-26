@@ -11,9 +11,7 @@ Dependencies
 These dependencies are needed:
 
 compile 'com.google.code.gson:gson:2.5'
-
 compile 'org.apache.commons:commons-lang3:3.4'
-
 compile 'com.google.guava:guava:19.0'
 
 ===========
@@ -25,15 +23,15 @@ Sends a POST synchronously
         builder.url("http://foo.lvh.me:3000/api/v1/foo");
 
         APGateway gw = builder.build();
-
-        APObject obj = new APObject();
-        gw.setBody("{'foo':'bar'}");
+        Map<String,String> param = new HashMap<String,String>();
+        param.put("foo", "bar");
+        gw.setPostParam(param);
 
         gw.post("/bar");
 
-        gw.readResponseObject(obj);
+        ResponseFromRequest response = gw.setPostParam(obj);
         
-        String id = obj.get("id");
+        System.out.println("response: " + response.data);
 
 ```
 
@@ -44,9 +42,9 @@ Sends a request asynchronously
         
         APGateway gw = builder.build();
         
-        gw.get("/api/v1/foo", new APCallback<APObject>() {
+        gw.get("/api/v1/foo", new APStringCallback() {
             @Override
-            public void finished(APObject object, Throwable ex) {
+            public void finished(String object, Throwable ex) {
                 if (ex == null) {
                     System.out.println("success");
                 } else {                    
@@ -81,7 +79,7 @@ Plug in your own JSON Parser
 
 Use certificate pinning
 ```{java}
-        CertPinningManager.getInstance().setupCa("myalias", certificateInBytes);
+        APGateway.getCertPinningManager().setupCa("myalias", certificateInBytes);
         
         APGateway.Builder builder = new APGateway.Builder();
         builder.url("https://localhost:3000");
