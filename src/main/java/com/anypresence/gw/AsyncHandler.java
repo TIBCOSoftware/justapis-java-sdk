@@ -8,7 +8,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
-public class AsyncHandler {
+class AsyncHandler {
 	private static ListeningExecutorService service = MoreExecutors
 			.listeningDecorator(Executors.newFixedThreadPool(2));
 
