@@ -2,7 +2,6 @@ package com.anypresence.gw;
 
 import java.util.concurrent.PriorityBlockingQueue;
 
-import com.anypresence.gw.callbacks.IAPFutureCallback;
 import com.anypresence.gw.exceptions.RequestException;
 
 /**

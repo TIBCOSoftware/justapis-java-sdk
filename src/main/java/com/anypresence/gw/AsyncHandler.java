@@ -2,7 +2,6 @@ package com.anypresence.gw;
 
 import java.util.concurrent.Executors;
 
-import com.anypresence.gw.callbacks.IAPFutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;

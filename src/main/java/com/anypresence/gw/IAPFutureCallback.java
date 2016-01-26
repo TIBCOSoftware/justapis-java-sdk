@@ -1,7 +1,7 @@
-package com.anypresence.gw.callbacks;
+package com.anypresence.gw;
 
 import com.google.common.util.concurrent.FutureCallback;
 
-public interface IAPFutureCallback<T> extends FutureCallback<T> {
+interface IAPFutureCallback<T> extends FutureCallback<T> {
     void finished(T object, Throwable ex);
 }

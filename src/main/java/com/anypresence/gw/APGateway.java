@@ -11,7 +11,6 @@ import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.NotImplementedException;
 
-import com.anypresence.gw.callbacks.IAPFutureCallback;
 import com.anypresence.gw.exceptions.RequestException;
 import com.anypresence.gw.http.DefaultRestClient;
 import com.anypresence.gw.http.IRestClient;
@@ -37,6 +36,8 @@ public class APGateway {
     
     /** The request queue */
     private static RequestQueue requestQueue;
+    
+    private static CertPinningManager certPinningManager;
     
 
     /**
@@ -85,7 +86,7 @@ public class APGateway {
         execute(this.url, method, null);
     }
 
-    public <T> void execute(final String url, IAPFutureCallback<T> callback) throws RequestException {
+    public <T> void execute(final String url, APCallback<T> callback) throws RequestException {
         execute(url, null, callback);
     }
 
@@ -97,7 +98,7 @@ public class APGateway {
      * @throws RequestException 
      */
     private <T> void execute(final String url, final HTTPMethod method,
-            IAPFutureCallback<T> callback) throws RequestException {
+            APCallback<T> callback) throws RequestException {
         final HTTPMethod resolvedMethod = (method == null) ? this.method
                 : method;
 
@@ -105,9 +106,12 @@ public class APGateway {
             connect(url, resolvedMethod);
         } else {
             // Handle asynchronous case
-            StringRequestContext requestContext = new StringRequestContext(resolvedMethod, url);
-            requestContext.setGateway(this);
-            requestContext.setCallback((IAPFutureCallback<String>) callback);
+//            StringRequestContext requestContext = new StringRequestContext(resolvedMethod, url);
+//            requestContext.setGateway(this);
+//            requestContext.setCallback((IAPFutureCallback<String>) callback);
+            
+            
+            RequestContext<?> requestContext = callback.createRequestContext(resolvedMethod, url, this);
             getRequestQueue().add(requestContext);
             
             if (!getRequestQueue().isRunning) {
@@ -190,11 +194,11 @@ public class APGateway {
         }
     }
     
-    public <T> void get(IAPFutureCallback<T> callback) {
+    public <T> void get(APCallback<T> callback) {
         get(url, callback);
     }
 
-    public <T> void get(String url, IAPFutureCallback<T> callback) {
+    public <T> void get(String url, APCallback<T> callback) {
         try {
             execute(url, HTTPMethod.GET, callback);
         } catch (RequestException e) {
@@ -292,6 +296,10 @@ public class APGateway {
 
     public void setRequestQueue(RequestQueue requestQueue) {
         this.requestQueue = requestQueue;
+    }
+
+    public static CertPinningManager getCertPinningManager() { 
+        return CertPinningManager.getInstance();
     }
 
     /**

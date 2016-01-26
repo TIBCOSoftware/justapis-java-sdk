@@ -25,7 +25,6 @@ import static org.mockserver.model.HttpResponse.response;
 import static org.mockserver.verify.VerificationTimes.exactly;
 
 import com.anypresence.gw.*;
-import com.anypresence.gw.callbacks.APCallback;
 import com.anypresence.gw.exceptions.RequestException;
 
 import static org.mockito.Mockito.*;
@@ -196,13 +195,15 @@ public final class APGatewayTest {
               .respond(response().withBody("{'id':'123'}"));
       final CountDownLatch endSignal = new CountDownLatch(1);
 
-      gw.get(new APCallback<String>() {
-          @Override
-          public void finished(String object, Throwable ex) {
-              Assert.assertNull(ex);
-              
-              endSignal.countDown();
-          }
+      gw.get(new APStringCallback() {
+        
+        @Override
+        public void finished(String object, Throwable ex) {
+            Assert.assertNull(ex);
+            
+            endSignal.countDown();
+        }
+        
       });
       
       endSignal.await();

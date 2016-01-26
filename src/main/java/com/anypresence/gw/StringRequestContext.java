@@ -1,6 +1,5 @@
 package com.anypresence.gw;
 
-import com.anypresence.gw.callbacks.IAPFutureCallback;
 
 /**
  * 
@@ -26,6 +25,9 @@ public class StringRequestContext extends RequestContext<String> {
         this.setCallback(callback);
     }
 
+    /**
+     * 
+     */
     @Override
     protected TransformedResponse<String> parseResponse(ResponseFromRequest responseFromRequest, Exception e) {
         if (getCallback() != null) {
