@@ -125,7 +125,7 @@ public class APGateway {
         if (getRestClient() instanceof DefaultRestClient) {
             ((DefaultRestClient)getRestClient()).useCertPinning(useCertPinning);
         }
-        
+
         StringRequestContext request = new StringRequestContext(method, Utilities.updateUrl(this.url, url));
         
         switch (method) {
