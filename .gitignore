@@ -16,3 +16,6 @@ bin/
 # Maven
 log/
 target/
+
+build/
+
