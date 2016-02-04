@@ -151,7 +151,6 @@ public final class APGatewayTest {
     }
     
 
-
     @Test
     public void test_PostWithUrl() {
         APGateway.Builder builder = new APGateway.Builder();

@@ -44,6 +44,8 @@ public class APGateway {
     
     private boolean useCertPinning = false;
     
+    private boolean useCaching = true;
+    
     public static void stopRequestQueue() {
         requestQueue.stop();
     }
@@ -138,6 +140,15 @@ public class APGateway {
                 // Nothing to do
         }
         getRestClient().executeRequest(request);
+    }
+    
+    public APGateway useCaching(boolean shouldUseCaching) {
+        this.useCaching = shouldUseCaching;
+        return this;
+    }
+    
+    public boolean getUseCaching() {
+        return useCaching;
     }
 
     /**
