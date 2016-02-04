@@ -3,8 +3,6 @@ Java AP JustAPI Gateway
 
 This is an SDK that you will want to use to interface with the AnyPresence's JustAPI technology. 
 
-The design is meant to be modular where you can plug in your own JSON parser or rest client.
-
 Dependencies
 ===========
 
@@ -12,7 +10,7 @@ These dependencies are needed:
 
 compile 'com.google.code.gson:gson:2.5'
 compile 'org.apache.commons:commons-lang3:3.4'
-compile 'com.google.guava:guava:19.0'
+compile 'com.google.guava:guava:18.0'
 
 ===========
 Quick Examples
@@ -53,28 +51,6 @@ Sends a request asynchronously
                 }
             }
         });
-```
-
-Plug in your own JSON Parser
-```{java}
-
-    class MyParser implements IParser {
-
-        @Override
-        public Map<String, String> parseData(String data) {
-            // Parse the data
-            return null;
-        }
-        
-    }
-    
-    ...
-    
-        APGateway.Builder builder = new APGateway.Builder();
-        builder.url("http://localhost:3000");
-        
-        APGateway gw = builder.build();
-        gw.setJsonParser(new MyParser());
 ```
 
 Use certificate pinning
