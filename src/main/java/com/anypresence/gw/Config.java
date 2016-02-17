@@ -15,7 +15,7 @@ public class Config {
     }
     
     public static void setCacheManager(ICacheManager cacheManager) {
-        cacheManager = cacheManager;
+        Config.cacheManager = cacheManager;
     }
     
     public static ICacheManager getCacheManager() {

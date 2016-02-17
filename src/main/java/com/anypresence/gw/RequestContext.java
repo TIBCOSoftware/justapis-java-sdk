@@ -7,7 +7,8 @@ import java.util.concurrent.PriorityBlockingQueue;
 /**
  * Base class for a request.
  * 
- * Instances of this class will also be used for queueing requests.
+ * Instances of this class will also be used for queueing requests. Instances of this class
+ * should be created from some type of APCallback.
  * 
  *  @param <T> The type of the parsed response the request wants.
  */
@@ -79,7 +80,13 @@ public abstract class RequestContext<T> implements Comparable<RequestContext<T>>
         this.gateway = gateway;
     }
 
-    
+    /**
+     * Parses the response and transforms it.
+     * 
+     * @param responseFromRequest
+     * @param e
+     * @return
+     */
     abstract protected TransformedResponse<T> parseResponse(ResponseFromRequest responseFromRequest, Exception e);
     
     public int compareTo(RequestContext<T> other) {

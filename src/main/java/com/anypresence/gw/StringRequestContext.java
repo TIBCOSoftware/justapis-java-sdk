@@ -26,12 +26,17 @@ public class StringRequestContext extends RequestContext<String> {
     }
 
     /**
+     * @see RequestContext#parseResponse(ResponseFromRequest, Exception)
+     * 
+     * Parses the response as a string.
      * 
      */
     @Override
     protected TransformedResponse<String> parseResponse(ResponseFromRequest responseFromRequest, Exception e) {
         if (getCallback() != null) {
-            getCallback().finished(responseFromRequest.data, e);
+            String data = responseFromRequest.data;
+            // No transformation necessary
+            getCallback().finished(data, e);
         }
         return new TransformedResponse<String>(responseFromRequest.data);
     }
@@ -40,8 +45,8 @@ public class StringRequestContext extends RequestContext<String> {
         return callback;
     }
 
-    public void setCallback(IAPFutureCallback<String> callback2) {
-        this.callback = callback2;
+    public void setCallback(IAPFutureCallback<String> callback) {
+        this.callback = callback;
     }
 
 }
