@@ -8,9 +8,11 @@ Dependencies
 
 These dependencies are needed:
 
+```
 compile 'com.google.code.gson:gson:2.5'
 compile 'org.apache.commons:commons-lang3:3.4'
 compile 'com.google.guava:guava:18.0'
+```
 
 ===========
 Quick Examples
@@ -53,7 +55,10 @@ Sends a request asynchronously
         });
 ```
 
-Use certificate pinning
+## Certificate pinning
+
+Certificate pinning ties a host to their expected X509 certificate.
+
 ```{java}
         APGateway.getCertPinningManager().setupCa("myalias", certificateInBytes);
         
@@ -64,3 +69,4 @@ Use certificate pinning
         APGateway gw = builder.build();
         gw.post("/bar");
 ```
+

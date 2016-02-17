@@ -100,7 +100,7 @@ public class APGateway {
      *            relative url to connect to
      * @throws RequestException 
      */
-    private <T> void execute(final String url, final HTTPMethod method,
+    public <T> void execute(final String url, final HTTPMethod method,
             APCallback<T> callback) throws RequestException {
         final HTTPMethod resolvedMethod = (method == null) ? this.method
                 : method;
