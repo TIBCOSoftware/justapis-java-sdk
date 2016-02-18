@@ -14,6 +14,19 @@ compile 'org.apache.commons:commons-lang3:3.4'
 compile 'com.google.guava:guava:18.0'
 ```
 
+Setup
+===========
+
+There are a few ways to add these dependencies. The below is for Eclipse.
+
+0) Add APGW-[version]-SNAPSHOT.jar into the libs folder for your java project.
+
+1) You also need to also make sure the library is listed as a dependency in File->Properties->Java Build Path->Jars.
+
+2) If not using maven or gradle, you may need to download the jars for the above dependencies.
+
+If using maven or gradle build system, you need to add the above dependencies into proper build scripts.
+
 Quick Examples
 ===========
 
@@ -58,7 +71,8 @@ Sends a request asynchronously
 
 ## Certificate pinning
 
-Certificate pinning ties a host to their expected X509 certificate.
+Certificate pinning allows you to tie certificates against specified domains. It defends against attacks on certificate authorities.
+It has it's limitations as well.
 
 ```{java}
         APGateway.getCertPinningManager().setupCa("myalias", certificateInBytes);
