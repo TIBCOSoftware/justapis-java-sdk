@@ -14,8 +14,8 @@ compile 'org.apache.commons:commons-lang3:3.4'
 compile 'com.google.guava:guava:18.0'
 ```
 
-===========
 Quick Examples
+===========
 
 Sends a POST synchronously
 ```{java}
@@ -29,13 +29,14 @@ Sends a POST synchronously
 
         gw.post("/bar");
 
-        ResponseFromRequest response = gw.setPostParam(obj);
+        ResponseFromRequest response = gw.readResponse();
         
         System.out.println("response: " + response.data);
 
 ```
 
 Sends a request asynchronously
+
 ```{java}
         APGateway.Builder builder = new APGateway.Builder();
         builder.url("http://localhost:3000");
