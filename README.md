@@ -8,10 +8,35 @@ Dependencies
 
 These dependencies are needed:
 
+Gradle
+
 ```
 compile 'com.google.code.gson:gson:2.5'
 compile 'org.apache.commons:commons-lang3:3.4'
 compile 'com.google.guava:guava:18.0'
+```
+
+Maven
+
+```
+<dependency>
+    <groupId>com.google.code.gson</groupId>
+    <artifactId>gson</artifactId>
+    <version>2.5</version>
+</dependency>
+
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-lang3</artifactId>
+    <version>3.4</version>
+</dependency>
+
+<dependency>
+    <groupId>com.google.guava</groupId>
+    <artifactId>guava</artifactId>
+    <version>18.0</version>
+</dependency>
+
 ```
 
 Setup
