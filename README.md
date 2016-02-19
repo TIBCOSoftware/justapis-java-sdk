@@ -110,3 +110,25 @@ It has it's limitations as well.
         gw.post("/bar");
 ```
 
+## Caching
+
+The default cache store is an in-memory cache.
+
+```{java}
+      APGateway.Builder builder = new APGateway.Builder();
+      builder.url("http://localhost:1080/api/v1/foo");
+
+      APGateway gw = builder.build();
+      gw.useCaching(true).get();
+      
+      ResponseFromRequest response = gw.readResponse();       
+      System.out.println("response: " + response.data);
+```
+
+You can set your own cache store by subclassing java.net.ResponseCache and calling 
+```
+    Config.setCacheManager(new MyMemoryCache());
+```
+
+
+
