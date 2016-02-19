@@ -2,6 +2,8 @@ package com.anypresence.gw;
 
 import java.net.ResponseCache;
 
+import com.anypresence.gw.cache.InMemoryCache;
+
 
 public class Config {
     private static ILogger logger = new BaseLogger();
@@ -22,6 +24,9 @@ public class Config {
     }
     
     public static ResponseCache getCacheManager() {
+        if (cacheManager == null) {
+            cacheManager = new InMemoryCache();
+        }
         return cacheManager;
     }
 
