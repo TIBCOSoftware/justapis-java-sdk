@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ResponseCache;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -36,18 +37,32 @@ public class DefaultRestClient implements IRestClient {
     private int readTimeout = 15 * 1000;
     private boolean shouldUseCertPinning = false;
     
+    public DefaultRestClient() {
+    }
+    
     public DefaultRestClient useCertPinning(boolean shouldUseCertPinning) {
         this.shouldUseCertPinning = shouldUseCertPinning;
         return this;
     }
 
-    private void openConnection(String url, HTTPMethod method)
+    private void openConnection(RequestContext<?> request)
             throws RequestException {
+        String url = request.getUrl();
+        HTTPMethod method = request.getMethod(); 
         URL urlConnection;
         try {
             Config.getLogger().log("URL connecting to: " + url);
             urlConnection = new URL(url);
             connection = (HttpURLConnection) urlConnection.openConnection();
+            
+            // Cache the result?
+            if (Config.getCacheManager() != null) {
+                if (request.getGateway().getUseCaching()) {
+                    connection.setUseCaches(true);
+                } else {
+                    connection.setUseCaches(false);
+                }                
+            }
             
             if (urlConnection.getProtocol().toLowerCase().equals("https")) {
                 // Use cert pinning?
@@ -72,12 +87,16 @@ public class DefaultRestClient implements IRestClient {
             throw new RequestException(e);
         }
     }
+    
+    private void get(RequestContext<?> request) throws RequestException {
+        openConnection(request);
+    }
+    
+    private void post(RequestContext<?> request) throws RequestException {
+        openConnection(request);
 
-    public void post(String url, Map<String,String> param) throws RequestException {
-        openConnection(url, HTTPMethod.POST);
-
-        if (param != null) {
-            JSONObject jsonObject = new JSONObject(param);
+        if (request.getPostParam() != null) {
+            JSONObject jsonObject = new JSONObject(request.getPostParam());
             OutputStreamWriter osw;
             try {
                 osw = new OutputStreamWriter(connection.getOutputStream());
@@ -112,10 +131,6 @@ public class DefaultRestClient implements IRestClient {
                 Config.getLogger().log(" " + s);
             }
 
-            // Cache the result
-            if (Config.getCacheManager() != null) {
-                Config.getCacheManager().putIntoCache("GET", url, result);
-            }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -135,15 +150,11 @@ public class DefaultRestClient implements IRestClient {
         }
     }
 
-    public void get(String url) throws RequestException {
-        openConnection(url, HTTPMethod.GET);
-    }
-
     public void executeRequest(RequestContext<?> request) throws RequestException {
        if (request.getMethod() == HTTPMethod.POST) {
-           post(request.getUrl(), request.getPostParam());
+           post(request);
        } else {
-           get(request.getUrl());
+           get(request);
        }
         
     }
