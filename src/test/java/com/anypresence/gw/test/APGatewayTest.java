@@ -27,6 +27,7 @@ import static org.mockserver.model.HttpResponse.response;
 import static org.mockserver.verify.VerificationTimes.exactly;
 
 import com.anypresence.gw.*;
+import com.anypresence.gw.cache.InMemoryCache;
 import com.anypresence.gw.exceptions.RequestException;
 
 import static org.mockito.Mockito.*;
@@ -214,5 +215,34 @@ public final class APGatewayTest {
       endSignal.await();
       
       gw.getRequestQueue().stop();
+  }
+  
+  @Test
+  public void test_GetWithCaching() {
+      Config.setCacheManager(new InMemoryCache());
+      APGateway.Builder builder = new APGateway.Builder();
+      builder.url("http://localhost:1080/api/v1/foo");
+
+      APGateway gw = builder.build();
+
+      mockServer.when(request().withMethod("GET").withPath("/api/v1/foo"))
+              .respond(response().withBody("{\"id\":\"123\"}"));
+
+      APObject obj = new APObject();
+
+      gw.useCaching(true).get();
+      gw.readResponseObject(obj);
+      Assert.assertEquals("123", obj.get("id"));
+      
+      mockServer.reset();
+      builder = new APGateway.Builder();
+      builder.url("http://localhost:1080/api/v1/foo");
+
+      gw = builder.build();
+      
+      gw.useCaching(true).get();
+      obj = new APObject();
+      gw.readResponseObject(obj);
+      Assert.assertEquals("123", obj.get("id"));
   }
 }

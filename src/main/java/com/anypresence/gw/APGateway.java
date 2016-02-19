@@ -44,7 +44,7 @@ public class APGateway {
     
     private boolean useCertPinning = false;
     
-    private boolean useCaching = true;
+    private boolean useCaching = false;
     
     public static void stopRequestQueue() {
         requestQueue.stop();
@@ -131,9 +131,12 @@ public class APGateway {
         }
 
         StringRequestContext request = new StringRequestContext(method, Utilities.updateUrl(this.url, url));
+        request.setGateway(this);
         
         switch (method) {
-            case POST:            
+            case PUT:
+            case DELETE:
+            case POST:
                 request.setPostParam(postParam);
                 break;
             default:

@@ -1,10 +1,11 @@
 package com.anypresence.gw;
 
-import com.anypresence.gw.cache.ICacheManager;
+import java.net.ResponseCache;
+
 
 public class Config {
     private static ILogger logger = new BaseLogger();
-    private static ICacheManager cacheManager;
+    private static ResponseCache cacheManager;
 
     public static ILogger getLogger() {
         return logger;
@@ -14,11 +15,13 @@ public class Config {
         logger = newLogger;
     }
     
-    public static void setCacheManager(ICacheManager cacheManager) {
+    public static void setCacheManager(ResponseCache cacheManager) {
         Config.cacheManager = cacheManager;
+        
+        ResponseCache.setDefault(Config.getCacheManager());
     }
     
-    public static ICacheManager getCacheManager() {
+    public static ResponseCache getCacheManager() {
         return cacheManager;
     }
 
