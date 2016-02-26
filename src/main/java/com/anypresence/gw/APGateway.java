@@ -46,6 +46,8 @@ public class APGateway {
     
     private boolean useCaching = false;
     
+    private Map<String,String> headers;
+    
     public static void stopRequestQueue() {
         requestQueue.stop();
     }
@@ -312,6 +314,14 @@ public class APGateway {
         return CertPinningManager.getInstance();
     }
 
+    public Map<String,String> getHeaders() {
+        return headers;
+    }
+
+    public void setHeaders(Map<String,String> headers) {
+        this.headers = headers;
+    }
+
     /**
      * Builder for APGateway
      * 
@@ -320,6 +330,7 @@ public class APGateway {
         String url;
         HTTPMethod method;
         boolean useCertPinning = false;
+        Map<String,String> headers = new HashMap<String,String>();
 
         public Builder() {
         }
@@ -338,12 +349,18 @@ public class APGateway {
             this.useCertPinning = useCertPinning;
             return this;
         }
+        
+        public Builder headers(Map<String,String> headers) {
+            this.headers = headers;
+            return this;
+        }
 
         public APGateway build() {
             APGateway gw = new APGateway();
             gw.setUrl(url);
             gw.setMethod(method);
             gw.setUseCertPinning(useCertPinning);
+            gw.setHeaders(headers);
 
             return gw;
         }
