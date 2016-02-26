@@ -66,8 +66,6 @@ public class RequestQueue {
 
         thread = new Thread(runnable);
         thread.start();
-        
-        
     }
     
     public void pause() {

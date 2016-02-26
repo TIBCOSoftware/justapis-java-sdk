@@ -27,14 +27,11 @@ public class JSONParser implements IParser {
 
         if (jsonObject.isJsonArray()) {
             jsonObject = jsonObject.getAsJsonArray();
-            System.out.println("@@ is a json array");
-        } else {
-            // Not a json array
-            System.out.println("@@ not a json array");
-        }
+        } 
 
-        if (clazz == JsonElement.class)
+        if (clazz == JsonElement.class) {
             return (T) jsonObject;
+        }
 
         return defaultGsonDeserializer.create().fromJson(jsonObject, clazz);
     }

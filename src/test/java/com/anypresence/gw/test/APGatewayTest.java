@@ -89,9 +89,13 @@ public final class APGatewayTest {
         String responseBody = gw.readResponse().data;
         Assert.assertEquals("testing123", responseBody);
     }
+    
+    //////////////////
+    // GET
+    //////////////////
 
     @Test
-    public void test_Query() throws RequestException {
+    public void test_GetQuery() throws RequestException {
         APGateway.Builder builder = new APGateway.Builder();
         builder.url("http://localhost:1080/api/v1/foo");
         builder.method(HTTPMethod.GET);
@@ -107,7 +111,38 @@ public final class APGatewayTest {
 
         Assert.assertEquals("bar", obj.get("foo"));
     }
+    
+    @Test
+    public void test_GetAsynchronously() throws InterruptedException {
+        APGateway.Builder builder = new APGateway.Builder();
+        builder.url("http://localhost:1080/api/v1/foo");
+        builder.method(HTTPMethod.GET);
+        APGateway gw = builder.build();
 
+        mockServer.when(request().withMethod("GET").withPath("/api/v1/foo"))
+                .respond(response().withBody("{'id':'123'}"));
+        final CountDownLatch endSignal = new CountDownLatch(1);
+
+        gw.get(new APStringCallback() {
+          
+          @Override
+          public void finished(String object, Throwable ex) {
+              Assert.assertNull(ex);
+              
+              endSignal.countDown();
+          }
+          
+        });
+        
+        endSignal.await();
+        
+        gw.getRequestQueue().stop();
+    }
+
+    //////////////////
+    // POST
+    //////////////////
+    
     @Test
     public void test_Post() {
         APGateway.Builder builder = new APGateway.Builder();
@@ -190,59 +225,36 @@ public final class APGatewayTest {
                 gw.getUrl());
     }
 
-  @Test
-  public void test_GetAsynchronously() throws InterruptedException {
-      APGateway.Builder builder = new APGateway.Builder();
-      builder.url("http://localhost:1080/api/v1/foo");
-      builder.method(HTTPMethod.GET);
-      APGateway gw = builder.build();
+    // ////////////////
+    // Caching
+    // ////////////////
 
-      mockServer.when(request().withMethod("GET").withPath("/api/v1/foo"))
-              .respond(response().withBody("{'id':'123'}"));
-      final CountDownLatch endSignal = new CountDownLatch(1);
+    @Test
+    public void test_GetWithCaching() {
+        Config.setCacheManager(new InMemoryCache());
+        APGateway.Builder builder = new APGateway.Builder();
+        builder.url("http://localhost:1080/api/v1/foo");
 
-      gw.get(new APStringCallback() {
-        
-        @Override
-        public void finished(String object, Throwable ex) {
-            Assert.assertNull(ex);
-            
-            endSignal.countDown();
-        }
-        
-      });
-      
-      endSignal.await();
-      
-      gw.getRequestQueue().stop();
-  }
-  
-  @Test
-  public void test_GetWithCaching() {
-      Config.setCacheManager(new InMemoryCache());
-      APGateway.Builder builder = new APGateway.Builder();
-      builder.url("http://localhost:1080/api/v1/foo");
+        APGateway gw = builder.build();
 
-      APGateway gw = builder.build();
+        mockServer.when(request().withMethod("GET").withPath("/api/v1/foo"))
+                .respond(response().withBody("{\"id\":\"123\"}"));
 
-      mockServer.when(request().withMethod("GET").withPath("/api/v1/foo"))
-              .respond(response().withBody("{\"id\":\"123\"}"));
+        APObject obj = new APObject();
 
-      APObject obj = new APObject();
+        gw.useCaching(true).get();
+        gw.readResponseObject(obj);
+        Assert.assertEquals("123", obj.get("id"));
 
-      gw.useCaching(true).get();
-      gw.readResponseObject(obj);
-      Assert.assertEquals("123", obj.get("id"));
-      
-      mockServer.reset();
-      builder = new APGateway.Builder();
-      builder.url("http://localhost:1080/api/v1/foo");
+        mockServer.reset();
+        builder = new APGateway.Builder();
+        builder.url("http://localhost:1080/api/v1/foo");
 
-      gw = builder.build();
-      
-      gw.useCaching(true).get();
-      obj = new APObject();
-      gw.readResponseObject(obj);
-      Assert.assertEquals("123", obj.get("id"));
-  }
+        gw = builder.build();
+
+        gw.useCaching(true).get();
+        obj = new APObject();
+        gw.readResponseObject(obj);
+        Assert.assertEquals("123", obj.get("id"));
+    }
 }
