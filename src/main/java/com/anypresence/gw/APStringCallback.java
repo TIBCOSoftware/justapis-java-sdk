@@ -7,7 +7,7 @@ public abstract class APStringCallback extends APCallback<String> {
     public RequestContext<String> createRequestContext(HTTPMethod method, String url, APGateway gateway) {
         StringRequestContext requestContext = new StringRequestContext(method, url);
         requestContext.setGateway(gateway);
-        requestContext.setCallback(this);
+        requestContext.setCallback(this);        
         
         return requestContext;
     }
