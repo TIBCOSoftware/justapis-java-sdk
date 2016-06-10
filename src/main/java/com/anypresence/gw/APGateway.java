@@ -320,6 +320,8 @@ public class APGateway {
         String url;
         HTTPMethod method;
         boolean useCertPinning = false;
+        String mqttHost;
+        int mqttPort;
 
         public Builder() {
         }
@@ -336,6 +338,16 @@ public class APGateway {
         
         public Builder useCertPinning(boolean useCertPinning) {
             this.useCertPinning = useCertPinning;
+            return this;
+        }
+
+        public Builder mqttHost(String host) {
+            this.mqttHost = host;
+            return this;
+        }
+
+        public Builder mqttPort(int port) {
+            this.mqttPort = port;
             return this;
         }
 
