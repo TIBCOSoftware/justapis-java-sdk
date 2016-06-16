@@ -40,7 +40,7 @@ public class APGateway {
     /**
      * Payload body for POST requests
      */
-    private Map<String,String> postParam;
+    private Map<String,Object> postParam;
     
     private boolean useCertPinning = false;
     
@@ -93,6 +93,26 @@ public class APGateway {
         execute(url, null, callback);
     }
 
+    public <T> void execute(RequestContext<T> context) throws RequestException {
+        if (getRestClient() instanceof DefaultRestClient) {
+            ((DefaultRestClient)getRestClient()).useCertPinning(useCertPinning);
+        }
+
+        StringRequestContext request = new StringRequestContext(context.getMethod(), Utilities.updateUrl(this.url, context.getUrl()));
+        request.setGateway(this);
+
+        switch (context.getMethod()) {
+            case PUT:
+            case DELETE:
+            case POST:
+                request.setPostParam(context.getPostParam());
+                break;
+            default:
+                // Nothing to do
+        }
+        getRestClient().executeRequest(request);
+    }
+
     /**
      * @param <T>
      * @see APGateway#execute()
@@ -111,7 +131,7 @@ public class APGateway {
             // Handle asynchronous case
             RequestContext<?> requestContext = callback.createRequestContext(resolvedMethod, url, this);
             getRequestQueue().add(requestContext);
-            
+
             if (!getRequestQueue().isRunning) {
                 getRequestQueue().start();
             }
@@ -247,11 +267,11 @@ public class APGateway {
         this.restClient = restClient;
     }
 
-    public Map<String,String> getPostParam() {
+    public Map<String,Object> getPostParam() {
         return postParam;
     }
 
-    public void setPostParam(Map<String,String> postParam) {
+    public void setPostParam(Map<String,Object> postParam) {
         this.postParam = postParam;
     }
 
@@ -310,6 +330,64 @@ public class APGateway {
 
     public static CertPinningManager getCertPinningManager() { 
         return CertPinningManager.getInstance();
+    }
+
+    public <T> void subscribe(String codeName, String name, String platform, String channel, long period, String token, APCallback<String> callback) {
+        String pushUrl = Utilities.parseDomainFromUrl(this.url) + "/push";
+        pushUrl = Utilities.updateUrl(pushUrl, codeName);
+        pushUrl = Utilities.updateUrl(pushUrl, "subscribe");
+        RequestContext<?> requestContext = callback.createRequestContext(HTTPMethod.PUT, pushUrl, this);
+        
+        Map<String,Object> params = new HashMap<String, Object>();
+        params.put("platform", platform);
+        params.put("channel", channel);
+        params.put("period", period);
+        params.put("token", new Long(period));
+        params.put("name", name);
+        requestContext.setPostParam(params);
+
+        getRequestQueue().add(requestContext);
+
+        if (!getRequestQueue().isRunning) {
+            getRequestQueue().start();
+        }
+    }
+
+    public <T> void unsubscribe(String codeName, String name, String token, APCallback<String> callback) {
+        String pushUrl = Utilities.parseDomainFromUrl(this.url) + "/push";
+        pushUrl = Utilities.updateUrl(pushUrl, codeName);
+        pushUrl = Utilities.updateUrl(pushUrl, "unsubscribe");
+        RequestContext<?> requestContext = callback.createRequestContext(HTTPMethod.PUT, pushUrl, this);
+
+        Map<String,Object> params = new HashMap<String, Object>();
+        params.put("name", name);
+        params.put("token", token);
+        requestContext.setPostParam(params);
+
+        getRequestQueue().add(requestContext);
+
+        if (!getRequestQueue().isRunning) {
+            getRequestQueue().start();
+        }
+    }
+
+    public <T> void publish(String codeName, String channel, String environment, Map<String,Object> payload, APCallback<String> callback) {
+        String pushUrl = Utilities.parseDomainFromUrl(this.url) + "/push";
+        pushUrl = Utilities.updateUrl(pushUrl, codeName);
+        pushUrl = Utilities.updateUrl(pushUrl, "publish");
+        RequestContext<?> requestContext = callback.createRequestContext(HTTPMethod.PUT,  pushUrl, this);
+
+        Map<String,Object> params = new HashMap<String, Object>();
+        params.put("channel", channel);
+        params.put("environment", environment);
+        params.put("payload", payload);
+        requestContext.setPostParam(params);
+
+        getRequestQueue().add(requestContext);
+
+        if (!getRequestQueue().isRunning) {
+            getRequestQueue().start();
+        }
     }
 
     /**

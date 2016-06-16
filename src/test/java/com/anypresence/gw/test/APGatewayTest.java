@@ -121,7 +121,7 @@ public final class APGatewayTest {
                 response().withBody("{'id':'123'}"));
 
         APObject obj = new APObject();
-        Map<String,String> param = new HashMap<String, String>();
+        Map<String,Object> param = new HashMap<String, Object>();
         param.put("foo", "bar");
         gw.setPostParam(param);
 
@@ -166,7 +166,7 @@ public final class APGatewayTest {
                 response().withBody("{'id':'123'}"));
 
         APObject obj = new APObject();
-        Map<String,String> param = new HashMap<String, String>();
+        Map<String,Object> param = new HashMap<String, Object>();
         param.put("foo", "bar");
         gw.setPostParam(param);
 
@@ -245,4 +245,77 @@ public final class APGatewayTest {
       gw.readResponseObject(obj);
       Assert.assertEquals("123", obj.get("id"));
   }
+
+    @Test
+    public void test_Subscribe() throws InterruptedException {
+        APGateway.Builder builder = new APGateway.Builder();
+        builder.url("http://localhost:1080/api/v1/foo");
+        builder.method(HTTPMethod.PUT);
+        APGateway gw = builder.build();
+
+        mockServer.when(request().withMethod("PUT").withPath("/push/codeName/subscribe"))
+                .respond(response().withBody("{'id':'123'}"));
+        final CountDownLatch endSignal = new CountDownLatch(1);
+
+        gw.subscribe("codeName", "name", "apple", "channel", 31536000, "token", new APStringCallback() {
+            @Override
+            public void finished(String object, Throwable ex) {
+                Assert.assertNull(ex);
+
+                endSignal.countDown();
+            }
+        });
+
+        endSignal.await();
+    }
+
+    @Test
+    public void test_Unsubscribe() throws InterruptedException {
+        APGateway.Builder builder = new APGateway.Builder();
+        builder.url("http://localhost:1080/api/v1/foo");
+        builder.method(HTTPMethod.PUT);
+        APGateway gw = builder.build();
+
+        mockServer.when(request().withMethod("PUT").withPath("/push/codeName/unsubscribe"))
+                .respond(response().withBody("{'id':'123'}"));
+        final CountDownLatch endSignal = new CountDownLatch(1);
+
+        gw.unsubscribe("codeName", "name", "token", new APStringCallback() {
+            @Override
+            public void finished(String object, Throwable ex) {
+                Assert.assertNull(ex);
+
+                endSignal.countDown();
+            }
+        });
+
+        endSignal.await();
+    }
+
+    @Test
+    public void test_Publish() throws InterruptedException {
+        APGateway.Builder builder = new APGateway.Builder();
+        builder.url("http://localhost:1080/api/v1/foo");
+        builder.method(HTTPMethod.POST);
+        APGateway gw = builder.build();
+
+        mockServer.when(request().withMethod("POST").withPath("/push/codeName/publish"))
+                .respond(response().withBody("{'id':'123'}"));
+        final CountDownLatch endSignal = new CountDownLatch(1);
+
+        Map<String,Object> payload = new HashMap<String, Object>();
+        payload.put("foo", "bar");
+
+        gw.publish("codeName", "channel", "apple", payload, new APStringCallback() {
+            @Override
+            public void finished(String object, Throwable ex) {
+                Assert.assertNull(ex);
+
+                endSignal.countDown();
+            }
+        });
+
+        endSignal.await();
+
+    }
 }

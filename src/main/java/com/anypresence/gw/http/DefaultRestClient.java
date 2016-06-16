@@ -11,13 +11,16 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.io.OutputStreamWriter;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 
+import com.anypresence.gw.serializers.JSONSerializer;
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 import com.anypresence.gw.APGateway;
 import com.anypresence.gw.CertPinningManager;
@@ -96,17 +99,17 @@ public class DefaultRestClient implements IRestClient {
         openConnection(request);
 
         if (request.getPostParam() != null) {
-            JSONObject jsonObject = new JSONObject(request.getPostParam());
+            String jsonString = JSONSerializer.getInstance().parseToString(request.getPostParam());
+
             OutputStreamWriter osw;
             try {
                 osw = new OutputStreamWriter(connection.getOutputStream());
-                System.out.println("@@@@@ body is: " + jsonObject.toString());
-                osw.write(jsonObject.toString());
+                osw.write(jsonString);
                 osw.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
+        } 
     }
 
     public ResponseFromRequest readResponse() {
@@ -151,7 +154,7 @@ public class DefaultRestClient implements IRestClient {
     }
 
     public void executeRequest(RequestContext<?> request) throws RequestException {
-       if (request.getMethod() == HTTPMethod.POST) {
+       if (request.getMethod() == HTTPMethod.POST || request.getMethod() == HTTPMethod.PUT || request.getMethod() == HTTPMethod.DELETE) {
            post(request);
        } else {
            get(request);

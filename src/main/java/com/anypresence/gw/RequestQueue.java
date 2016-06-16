@@ -43,7 +43,7 @@ public class RequestQueue {
                         }
                         Exception exceptionOccurred = null;
                         try {
-                            gateway.execute();
+                            gateway.execute(requestContext);
                         } catch (RequestException e) {
                             exceptionOccurred = e;
                         }
